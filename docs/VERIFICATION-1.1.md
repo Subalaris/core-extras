@@ -1,4 +1,4 @@
-# Verification — Site Staples
+# Verification — CoreExtras
 
 ## 1.3.1 maintenance canvas — 2026-10-24
 
@@ -93,7 +93,7 @@ WordPress 7.1.3 core source. Tests do not load or change a live site's database.
   for inputs and textareas, disabled defaults, separate action forms, required
   confirmations and readable import previews.
 - PHP syntax lint covers all first-party PHP, test tools and the bundled sanitizer.
-  Packaging validates a single `site-staples/` root, all runtime modules, dependency
+  Packaging validates a single `core-extras/` root, all runtime modules, dependency
   files, required docs and no tests/development dependencies. Sanitizer file
   checksums remain verified.
 
@@ -162,14 +162,14 @@ maintenance exclusions and third-party integration limitations.
   action-return notices and unavailable session storage. This is a behavior check
   using stand-ins, not a browser or assistive-technology check.
 - Groups remain visible and directly linked when JavaScript is unavailable. The
-  white background is scoped to the Site Staples settings screen. At narrow
+  white background is scoped to the CoreExtras settings screen. At narrow
   widths the vertical tab list stacks above its panel.
 - The browser restriction described above remains; visual appearance, real
   keyboard interactions, text zoom and responsive layout remain unverified.
 
 ### Supplied dashboard template follow-up
 
-The local `site-staples-dashboard.html` design was adapted into the production
+The local `core-extras-dashboard.html` design was adapted into the production
 admin renderer and page-scoped assets. All eleven modules plus data removal now
 render as feature cards. Switches are native checkbox inputs with switch
 semantics. Counts and badges reflect edited selections; the sticky save bar

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:site-staples:settings:2",
-  "title": "Site Staples configuration export v2",
+  "$id": "urn:core-extras:settings:2",
+  "title": "CoreExtras configuration export v2",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,7 +11,7 @@
   ],
   "properties": {
     "plugin": {
-      "const": "site-staples"
+      "enum": ["core-extras", "site-staples"]
     },
     "schema_version": {
       "const": 2

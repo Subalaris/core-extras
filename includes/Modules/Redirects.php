@@ -1,10 +1,10 @@
 <?php
-/** Exact local redirects with validation and graph cycle prevention. @package SiteStaples */
+/** Exact local redirects with validation and graph cycle prevention. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
-use SiteStaples\RedirectRules;
-use SiteStaples\RedirectStore;
+use CoreExtras\RedirectRules;
+use CoreExtras\RedirectStore;
 
 final class Redirects {
 	const MAX_RULES = RedirectRules::MAX_RULES;
@@ -56,14 +56,14 @@ final class Redirects {
 	}
 
 	public function redirect() {
-		if ( did_action( 'site_staples_maintenance_page' ) || is_admin() || is_preview() || is_feed() || is_trackback() ) {
+		if ( did_action( 'core_extras_maintenance_page' ) || is_admin() || is_preview() || is_feed() || is_trackback() ) {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Parsed with the strict local path grammar above.
 		$match = $this->match( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) );
 		if ( $match ) {
 			nocache_headers();
-			if ( wp_safe_redirect( $match['url'], $match['status'], 'Site Staples' ) ) {
+			if ( wp_safe_redirect( $match['url'], $match['status'], 'CoreExtras' ) ) {
 				exit;
 			}
 		}

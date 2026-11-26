@@ -1,10 +1,10 @@
 <?php
-/** Versioned configuration-only transfer with preview and confirmation. @package SiteStaples */
+/** Versioned configuration-only transfer with preview and confirmation. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
-use SiteStaples\Guard;
-use SiteStaples\Settings;
+use CoreExtras\Guard;
+use CoreExtras\Settings;
 
 final class Transfer {
 	const SCHEMA_VERSION = 3;
@@ -13,36 +13,36 @@ final class Transfer {
 	public function __construct( $settings ) {}
 
 	public function register() {
-		add_action( 'admin_post_site_staples_export', array( $this, 'export' ) );
-		add_action( 'admin_post_site_staples_import_preview', array( $this, 'preview' ) );
-		add_action( 'admin_post_site_staples_import_apply', array( $this, 'apply' ) );
+		add_action( 'admin_post_core_extras_export', array( $this, 'export' ) );
+		add_action( 'admin_post_core_extras_import_preview', array( $this, 'preview' ) );
+		add_action( 'admin_post_core_extras_import_apply', array( $this, 'apply' ) );
 	}
 
 	public static function document() {
-		return array( 'plugin' => 'site-staples', 'schema_version' => self::SCHEMA_VERSION, 'settings' => Settings::get() );
+		return array( 'plugin' => 'core-extras', 'schema_version' => self::SCHEMA_VERSION, 'settings' => Settings::get() );
 	}
 
 	public static function parse( $json ) {
 		if ( ! is_string( $json ) || strlen( $json ) > self::MAX_BYTES ) {
-			return new \WP_Error( 'size', __( 'Import a JSON settings file no larger than 32 MB.', 'site-staples' ) );
+			return new \WP_Error( 'size', __( 'Import a JSON settings file no larger than 32 MB.', 'core-extras' ) );
 		}
 		try {
 			$decoded = json_decode( $json, false, 16, JSON_THROW_ON_ERROR );
 			$doc = $decoded instanceof \stdClass ? get_object_vars( $decoded ) : null;
 		} catch ( \JsonException $exception ) {
-			return new \WP_Error( 'json', __( 'The file is not valid JSON or is nested too deeply.', 'site-staples' ) );
+			return new \WP_Error( 'json', __( 'The file is not valid JSON or is nested too deeply.', 'core-extras' ) );
 		}
 		$keys = array( 'plugin', 'schema_version', 'settings' );
-		if ( ! is_array( $doc ) || count( $doc ) !== 3 || array_diff( array_keys( $doc ), $keys ) || 'site-staples' !== ( $doc['plugin'] ?? null ) || ! in_array( $doc['schema_version'] ?? null, array( 1, 2, self::SCHEMA_VERSION ), true ) ) {
-			return new \WP_Error( 'version', __( 'This is not a supported Site Staples settings export (schema version 1, 2 or 3).', 'site-staples' ) );
+		if ( ! is_array( $doc ) || count( $doc ) !== 3 || array_diff( array_keys( $doc ), $keys ) || ! in_array( $doc['plugin'] ?? null, array( 'core-extras', 'site-staples' ), true ) || ! in_array( $doc['schema_version'] ?? null, array( 1, 2, self::SCHEMA_VERSION ), true ) ) {
+			return new \WP_Error( 'version', __( 'This is not a supported CoreExtras settings export (schema version 1, 2 or 3).', 'core-extras' ) );
 		}
 		// Preserve JSON object/array distinctions before converting to PHP arrays.
 		if ( ! $doc['settings'] instanceof \stdClass ) {
-			return new \WP_Error( 'shape', __( 'Settings must be a JSON object; role and post-type lists must be JSON arrays.', 'site-staples' ) );
+			return new \WP_Error( 'shape', __( 'Settings must be a JSON object; role and post-type lists must be JSON arrays.', 'core-extras' ) );
 		}
 		$defaults = 1 === $doc['schema_version'] ? Settings::legacy_defaults() : ( 2 === $doc['schema_version'] ? Settings::v2_defaults() : Settings::defaults() );
 		if ( array_diff_key( get_object_vars( $doc['settings'] ), $defaults ) || array_diff_key( $defaults, get_object_vars( $doc['settings'] ) ) ) {
-			return new \WP_Error( 'shape', __( 'Configuration keys do not match the declared schema version.', 'site-staples' ) );
+			return new \WP_Error( 'shape', __( 'Configuration keys do not match the declared schema version.', 'core-extras' ) );
 		}
 		foreach ( $defaults as $key => $default ) {
 			if ( ! is_array( $default ) ) {
@@ -50,11 +50,11 @@ final class Transfer {
 			}
 			$module = $doc['settings']->$key ?? null;
 			if ( ! $module instanceof \stdClass || array_diff_key( get_object_vars( $module ), $default ) || array_diff_key( $default, get_object_vars( $module ) ) ) {
-				return new \WP_Error( 'shape', __( 'Each feature configuration must be a JSON object.', 'site-staples' ) );
+				return new \WP_Error( 'shape', __( 'Each feature configuration must be a JSON object.', 'core-extras' ) );
 			}
 			foreach ( array( 'roles', 'post_types', 'disabled_sizes', 'widgets', 'toolbar', 'rules' ) as $list ) {
 				if ( array_key_exists( $list, $default ) && ! is_array( $module->$list ?? null ) ) {
-					return new \WP_Error( 'shape', __( 'Role and post-type lists must be JSON arrays, including empty lists.', 'site-staples' ) );
+					return new \WP_Error( 'shape', __( 'Role and post-type lists must be JSON arrays, including empty lists.', 'core-extras' ) );
 				}
 			}
 		}
@@ -63,14 +63,14 @@ final class Transfer {
 	}
 
 	public static function transient_key() {
-		return 'site_staples_import_' . get_current_blog_id() . '_' . get_current_user_id();
+		return 'core_extras_import_' . get_current_blog_id() . '_' . get_current_user_id();
 	}
 
 	public function export() {
-		Guard::post( 'site_staples_export' );
+		Guard::post( 'core_extras_export' );
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="site-staples-settings-v3.json"' );
+		header( 'Content-Disposition: attachment; filename="core-extras-settings-v3.json"' );
 		header( 'X-Content-Type-Options: nosniff' );
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON download, not HTML.
 		echo wp_json_encode( self::document(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
@@ -78,10 +78,10 @@ final class Transfer {
 	}
 
 	public function preview() {
-		Guard::post( 'site_staples_import_preview' );
+		Guard::post( 'core_extras_import_preview' );
 		$file = $_FILES['settings_file'] ?? array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Guard::post() verifies the nonce; verified upload and strict JSON parser below.
 		if ( ! isset( $file['name'], $file['error'], $file['tmp_name'] ) || UPLOAD_ERR_OK !== $file['error'] || ! is_string( $file['name'] ) || ! is_string( $file['tmp_name'] ) || 'json' !== strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) ) || ! is_uploaded_file( $file['tmp_name'] ) || filesize( $file['tmp_name'] ) > self::MAX_BYTES ) {
-			Guard::result( new \WP_Error( 'upload', __( 'Choose a valid .json upload no larger than 32 MB.', 'site-staples' ) ) );
+			Guard::result( new \WP_Error( 'upload', __( 'Choose a valid .json upload no larger than 32 MB.', 'core-extras' ) ) );
 		}
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local verified upload only.
 		$settings = Guard::result( self::parse( file_get_contents( $file['tmp_name'] ) ) );
@@ -92,7 +92,7 @@ final class Transfer {
 	/** No feature actions are invoked here: importing only changes the option. */
 	public function apply_preview( $state, $token ) {
 		if ( ! current_user_can( 'manage_options' ) || ! is_array( $state ) || ! isset( $state['token'], $state['settings'], $state['before'] ) || ! is_string( $token ) || ! hash_equals( $state['token'], $token ) || $state['before'] !== Settings::get() ) {
-			return new \WP_Error( 'stale', __( 'The preview expired or settings changed. Preview the import again.', 'site-staples' ) );
+			return new \WP_Error( 'stale', __( 'The preview expired or settings changed. Preview the import again.', 'core-extras' ) );
 		}
 		$settings = Settings::validate( $state['settings'] );
 		if ( is_wp_error( $settings ) ) {
@@ -102,14 +102,14 @@ final class Transfer {
 	}
 
 	public function apply() {
-		Guard::post( 'site_staples_import_apply' );
+		Guard::post( 'core_extras_import_apply' );
 		$state = get_transient( self::transient_key() );
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Guard::post() verifies the scoped nonce above.
 		$token = isset( $_POST['preview_token'] ) && is_string( $_POST['preview_token'] ) ? sanitize_text_field( wp_unslash( $_POST['preview_token'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Guard::post() verifies the scoped nonce above.
 		$confirm = isset( $_POST['confirm'] ) && is_string( $_POST['confirm'] ) ? sanitize_text_field( wp_unslash( $_POST['confirm'] ) ) : '';
 		if ( '1' !== $confirm ) {
-			Guard::result( new \WP_Error( 'confirm', __( 'Confirm the preview before importing settings.', 'site-staples' ) ) );
+			Guard::result( new \WP_Error( 'confirm', __( 'Confirm the preview before importing settings.', 'core-extras' ) ) );
 		}
 		delete_transient( self::transient_key() );
 		Guard::result( $this->apply_preview( $state, $token ) );

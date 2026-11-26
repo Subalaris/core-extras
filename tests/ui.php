@@ -21,31 +21,31 @@ foreach ( array( false, true ) as $enabled ) {
 		ui_expect( (bool) $label, 'control has a native associated label: ' . $input->getAttribute( 'name' ) );
 	}
 	ui_expect( 0 === $xpath->query( '//form//form' )->length, 'action forms are separate from the settings form' );
-	ui_expect( 0 === $xpath->query( '//input[starts-with(@name,"site_staples_settings[") and not(@form="site-staples-settings")] | //textarea[starts-with(@name,"site_staples_settings[") and not(@form="site-staples-settings")]' )->length, 'every setting explicitly belongs to the configuration form' );
-	ui_expect( 1 === $xpath->query( '//input[@type="submit" and @form="site-staples-settings"]' )->length, 'save button submits the configuration form' );
+	ui_expect( 0 === $xpath->query( '//input[starts-with(@name,"site_staples_settings[") and not(@form="core-extras-settings")] | //textarea[starts-with(@name,"site_staples_settings[") and not(@form="core-extras-settings")]' )->length, 'every setting explicitly belongs to the configuration form' );
+	ui_expect( 1 === $xpath->query( '//input[@type="submit" and @form="core-extras-settings"]' )->length, 'save button submits the configuration form' );
 	foreach ( $xpath->query( '//nav//a[starts-with(@href,"#")]' ) as $link ) {
 		ui_expect( 1 === $xpath->query( '//*[@id="' . substr( $link->getAttribute( 'href' ), 1 ) . '"]' )->length, 'group link has one unique destination' );
 	}
-	ui_expect( 1 === $xpath->query( '//*[@id="staples-redirect-editor"]' )->length && 0 === $xpath->query( '//textarea[@id="staples-redirect-rules"]' )->length, 'redirects render a row editor instead of a textarea' );
-	ui_expect( 1 === $xpath->query( '//*[@id="staples-redirect-editor"]//template[@data-redirect-template]' )->length, 'redirect template belongs to its manager' );
+	ui_expect( 1 === $xpath->query( '//*[@id="core-extras-redirect-editor"]' )->length && 0 === $xpath->query( '//textarea[@id="core-extras-redirect-rules"]' )->length, 'redirects render a row editor instead of a textarea' );
+	ui_expect( 1 === $xpath->query( '//*[@id="core-extras-redirect-editor"]//template[@data-redirect-template]' )->length, 'redirect template belongs to its manager' );
 	ui_expect( 2 === $xpath->query( '//select[@data-redirect-field="status"]' )->length, 'redirect rows and their add template contain native type selectors' );
-	ui_expect( 12 === $xpath->query( '//article[contains(@class,"site-staples-card")]' )->length, 'all modules and data removal render as feature cards' );
-	ui_expect( 11 === $xpath->query( '//input[@role="switch" and @type="checkbox" and @form="site-staples-settings"]' )->length, 'feature switches retain native checkbox form behavior' );
-	ui_expect( 1 === $xpath->query( '//button[@type="reset" and @form="site-staples-settings"]' )->length, 'discard uses the native configuration reset' );
+	ui_expect( 12 === $xpath->query( '//article[contains(@class,"core-extras-card")]' )->length, 'all modules and data removal render as feature cards' );
+	ui_expect( 11 === $xpath->query( '//input[@role="switch" and @type="checkbox" and @form="core-extras-settings"]' )->length, 'feature switches retain native checkbox form behavior' );
+	ui_expect( 1 === $xpath->query( '//button[@type="reset" and @form="core-extras-settings"]' )->length, 'discard uses the native configuration reset' );
 	ui_expect( 0 === $xpath->query( '//details | //summary' )->length, 'feature options are always visible without disclosure controls' );
 	ui_expect( 9 === $xpath->query( '//fieldset[@data-feature-options]' )->length, 'configurable features use option fieldsets for native disabled behavior' );
-	ui_expect( 0 === $xpath->query( '//*[@id="site-staples-unsaved"]' )->length, 'unsaved warning cannot shift tab content' );
-	ui_expect( 1 === $xpath->query( '//footer//span[@id="site-staples-save-status" and @role="status"]' )->length, 'save feedback has a persistent footer status' );
+	ui_expect( 0 === $xpath->query( '//*[@id="core-extras-unsaved"]' )->length, 'unsaved warning cannot shift tab content' );
+	ui_expect( 1 === $xpath->query( '//footer//span[@id="core-extras-save-status" and @role="status"]' )->length, 'save feedback has a persistent footer status' );
 
 	ui_expect( 0 === $xpath->query( '//input[contains(@name,"[redirects][managed]")]/ancestor::fieldset' )->length, 'redirect preservation marker stays outside disabled editor controls' );
 	if ( ! $enabled ) {
-		ui_expect( 1 === $xpath->query( '//*[@id="staples-redirect-editor"]/ancestor::fieldset[@disabled]' )->length, 'redirect editor renders disabled when its feature is off' );
+		ui_expect( 1 === $xpath->query( '//*[@id="core-extras-redirect-editor"]/ancestor::fieldset[@disabled]' )->length, 'redirect editor renders disabled when its feature is off' );
 		ui_expect( 0 === $xpath->query( '//input[contains(@name,"[enabled]") and @checked]' )->length, 'all feature toggles render disabled by default' );
 		ui_expect( 1 === $xpath->query( '//form' )->length, 'disabled feature action tools do not render' );
 	} else {
 		ui_expect( 2 === $xpath->query( '//input[@name="confirm" and @required]' )->length, 'import and cleanup each require explicit confirmation' );
-		ui_expect( 1 === $xpath->query( '//input[@name="action" and @value="site_staples_revision_preview"]/ancestor::article//input[@id="staples-revisions"]' )->length, 'cleanup tools sit alongside revision settings' );
-		ui_expect( 1 === $xpath->query( '//input[@name="action" and @value="site_staples_import_preview"]/ancestor::article//input[@id="staples-transfer"]' )->length, 'import tools sit alongside transfer settings' );
+		ui_expect( 1 === $xpath->query( '//input[@name="action" and @value="core_extras_revision_preview"]/ancestor::article//input[@id="core-extras-revisions"]' )->length, 'cleanup tools sit alongside revision settings' );
+		ui_expect( 1 === $xpath->query( '//input[@name="action" and @value="core_extras_import_preview"]/ancestor::article//input[@id="core-extras-transfer"]' )->length, 'import tools sit alongside transfer settings' );
 		ui_expect( 0 === $xpath->query( '//form[@action="options.php"]//input[@name="action" or @name="confirm" or @name="preview_token"]' )->length, 'settings save cannot submit a cleanup or import action' );
 
 		ui_expect( 2 === $xpath->query( '//input[@name="preview_token"]' )->length, 'confirmation actions carry saved preview tokens' );

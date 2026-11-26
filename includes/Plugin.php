@@ -1,7 +1,7 @@
 <?php
-/** Plugin lifecycle and opt-in loading. @package SiteStaples */
+/** Plugin lifecycle and opt-in loading. @package CoreExtras */
 
-namespace SiteStaples;
+namespace CoreExtras;
 
 final class Plugin {
 	/** Register modules for this site. */
@@ -36,7 +36,7 @@ final class Plugin {
 	/** Activation never changes site content or network options. */
 	public static function activate() {
 		if ( version_compare( PHP_VERSION, '8.1', '<' ) || version_compare( get_bloginfo( 'version' ), '6.6', '<' ) ) {
-			wp_die( esc_html__( 'Site Staples requires WordPress 6.6 and PHP 8.1 or newer.', 'site-staples' ) );
+			wp_die( esc_html__( 'CoreExtras requires WordPress 6.6 and PHP 8.1 or newer.', 'core-extras' ) );
 		}
 		add_option( Settings::OPTION, Settings::defaults(), '', false );
 	}

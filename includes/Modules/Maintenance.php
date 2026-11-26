@@ -1,9 +1,9 @@
 <?php
-/** Maintenance responses with an explicit access bypass and recovery path. @package SiteStaples */
+/** Maintenance responses with an explicit access bypass and recovery path. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
-use SiteStaples\Settings;
+use CoreExtras\Settings;
 
 final class Maintenance {
 	private $settings;
@@ -24,8 +24,8 @@ final class Maintenance {
 
 	/** Plain text configuration is escaped here, never interpreted as HTML. */
 	public function html() {
-		$title = $this->settings['title'] ?: __( 'Temporarily unavailable', 'site-staples' );
-		$message = $this->settings['message'] ?: __( 'We are making improvements. Please check back soon.', 'site-staples' );
+		$title = $this->settings['title'] ?: __( 'Temporarily unavailable', 'core-extras' );
+		$message = $this->settings['message'] ?: __( 'We are making improvements. Please check back soon.', 'core-extras' );
 		return '<h1>' . esc_html( $title ) . '</h1><p>' . nl2br( esc_html( $message ) ) . '</p>';
 	}
 
@@ -53,7 +53,7 @@ final class Maintenance {
 		remove_action( 'template_redirect', 'redirect_canonical' );
 		remove_action( 'template_redirect', 'wp_old_slug_redirect' );
 		add_filter( 'template_include', array( $this, 'page_template' ), PHP_INT_MAX );
-		do_action( 'site_staples_maintenance_page', $page->ID );
+		do_action( 'core_extras_maintenance_page', $page->ID );
 		return true;
 	}
 
@@ -66,7 +66,7 @@ final class Maintenance {
 		}
 		$canvas = dirname( __DIR__ ) . '/templates/maintenance-page.php';
 		if ( ! is_file( $canvas ) ) {
-			wp_die( $this->html(), esc_html__( 'Maintenance', 'site-staples' ), array( 'response' => 503 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- html() escapes all configurable text.
+			wp_die( $this->html(), esc_html__( 'Maintenance', 'core-extras' ), array( 'response' => 503 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- html() escapes all configurable text.
 		}
 		// The canvas includes its own viewport metadata for both classic and block themes.
 		remove_action( 'wp_head', '_block_template_viewport_meta_tag', 0 );
@@ -86,7 +86,7 @@ final class Maintenance {
 			return;
 		}
 		// wp_die provides WordPress's accessible standalone page with HTTP 503.
-		wp_die( $this->html(), esc_html__( 'Maintenance', 'site-staples' ), array( 'response' => 503 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- html() escapes all configurable text.
+		wp_die( $this->html(), esc_html__( 'Maintenance', 'core-extras' ), array( 'response' => 503 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- html() escapes all configurable text.
 	}
 
 	public function rest( $result, $server, $request ) {
@@ -97,12 +97,12 @@ final class Maintenance {
 		if ( ! headers_sent() ) {
 			header( 'Retry-After: 3600' );
 		}
-		return new \WP_Error( 'site_staples_maintenance', __( 'This site is temporarily unavailable for maintenance.', 'site-staples' ), array( 'status' => 503 ) );
+		return new \WP_Error( 'core_extras_maintenance', __( 'This site is temporarily unavailable for maintenance.', 'core-extras' ), array( 'status' => 503 ) );
 	}
 
 	public function toolbar( $bar ) {
 		if ( current_user_can( 'manage_options' ) ) {
-			$bar->add_node( array( 'id' => 'site-staples-maintenance', 'title' => __( 'Maintenance mode is on', 'site-staples' ), 'href' => admin_url( 'options-general.php?page=site-staples' ) . '#staples-group-site' ) );
+			$bar->add_node( array( 'id' => 'core-extras-maintenance', 'title' => __( 'Maintenance mode is on', 'core-extras' ), 'href' => admin_url( 'options-general.php?page=core-extras' ) . '#core-extras-group-site' ) );
 		}
 	}
 }

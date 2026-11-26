@@ -49,7 +49,7 @@ load_core_functions( ABSPATH . WPINC . '/functions.php', array( 'wp_check_filety
 load_core_functions( ABSPATH . WPINC . '/formatting.php', array( 'wp_slash', 'wp_unslash', 'trailingslashit', 'untrailingslashit', 'wp_basename', 'sanitize_key', 'stripslashes_deep', 'stripslashes_from_strings_only', 'map_deep', 'wp_strip_all_tags' ) );
 $GLOBALS['wp_plugin_paths'] = array();
 load_core_functions( ABSPATH . WPINC . '/load.php', array( 'absint', 'wp_convert_hr_to_bytes' ) );
-require dirname( __DIR__ ) . '/site-staples.php';
+require dirname( __DIR__ ) . '/core-extras.php';
 
 $GLOBALS['test_options'] = array( 'thumbnail_size_w' => 150, 'thumbnail_size_h' => 150, 'thumbnail_crop' => true );
 $GLOBALS['test_posts'] = array();
@@ -59,7 +59,7 @@ $GLOBALS['test_transients'] = array();
 $GLOBALS['test_caps'] = array( 'manage_options' => true, 'upload_files' => true, 'read' => true, 'read_post' => true, 'create_posts' => true, 'delete_post' => true, 'edit_post' => true, 'assign_terms' => true );
 $GLOBALS['test_roles'] = array( 'administrator' );
 $GLOBALS['test_nonces'] = true;
-$GLOBALS['test_uploads'] = sys_get_temp_dir() . '/site-staples-test-' . getmypid() . '-' . bin2hex( random_bytes( 4 ) );
+$GLOBALS['test_uploads'] = sys_get_temp_dir() . '/core-extras-test-' . getmypid() . '-' . bin2hex( random_bytes( 4 ) );
 mkdir( $GLOBALS['test_uploads'] );
 function __( $s, $domain = '' ) { return $s; }
 function esc_html__( $s, $domain = '' ) { return htmlspecialchars( $s, ENT_QUOTES ); }

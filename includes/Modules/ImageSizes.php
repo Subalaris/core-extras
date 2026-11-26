@@ -1,7 +1,7 @@
 <?php
-/** Opt out of selected intermediate image sizes without deleting existing files. @package SiteStaples */
+/** Opt out of selected intermediate image sizes without deleting existing files. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
 final class ImageSizes {
 	private $settings;

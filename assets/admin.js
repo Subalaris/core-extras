@@ -1,14 +1,14 @@
 /* Native form controls remain usable without this enhancement. */
 (() => {
 	'use strict';
-	const form = document.getElementById('site-staples-settings');
+	const form = document.getElementById('core-extras-settings');
 	if (!form) return;
 
-	const root = form.closest('.site-staples-admin');
-	const navigation = root.querySelector('.site-staples-navigation');
+	const root = form.closest('.core-extras-admin');
+	const navigation = root.querySelector('.core-extras-navigation');
 	const tabs = Array.from(navigation.querySelectorAll('a'));
 	const panels = tabs.map(tab => document.getElementById(tab.hash.slice(1)));
-	const storageKey = 'site-staples-group:' + window.location.pathname;
+	const storageKey = 'core-extras-group:' + window.location.pathname;
 	const list = navigation.querySelector('ul');
 	list.setAttribute('role', 'tablist');
 	list.setAttribute('aria-label', navigation.getAttribute('aria-label'));
@@ -40,14 +40,14 @@
 		let id;
 		try { id = decodeURIComponent(window.location.hash.slice(1)); } catch (_) { return null; }
 		const target = document.getElementById(id);
-		return target ? target.closest('.site-staples-group') : null;
+		return target ? target.closest('.core-extras-group') : null;
 	};
 	const restore = (initial = false) => {
 		let panel = fromHash();
 		if (!panel && initial) {
-			const code = new URLSearchParams(window.location.search).get('staples_notice');
-			if (code === 'revision_preview' || code === 'revision_batch') panel = document.getElementById('staples-group-content');
-			if (code === 'import_preview' || code === 'imported') panel = document.getElementById('staples-group-plugin');
+			const code = new URLSearchParams(window.location.search).get('core_extras_notice');
+			if (code === 'revision_preview' || code === 'revision_batch') panel = document.getElementById('core-extras-group-content');
+			if (code === 'import_preview' || code === 'imported') panel = document.getElementById('core-extras-group-plugin');
 		}
 		if (!panel) {
 			try { panel = document.getElementById(window.sessionStorage.getItem(storageKey)); } catch (_) { /* Use the first group. */ }
@@ -79,7 +79,7 @@
 	const optionSets = Array.from(root.querySelectorAll('[data-feature-options]'));
 	const syncOptions = () => {
 		optionSets.forEach(options => {
-			const toggle = options.closest('.site-staples-card').querySelector('.site-staples-switch');
+			const toggle = options.closest('.core-extras-card').querySelector('.core-extras-switch');
 			options.disabled = !toggle.checked;
 		});
 	};
@@ -97,11 +97,11 @@
 	syncOptions();
 	const snapshot = () => JSON.stringify(Array.from(new FormData(form).entries()));
 	const saved = snapshot();
-	const save = document.getElementById('site-staples-save');
-	const discard = document.getElementById('site-staples-discard');
-	const status = document.getElementById('site-staples-save-status');
-	const maintenancePage = document.getElementById('staples-maintenance-page');
-	const clearMaintenancePage = document.getElementById('staples-maintenance-page-clear');
+	const save = document.getElementById('core-extras-save');
+	const discard = document.getElementById('core-extras-discard');
+	const status = document.getElementById('core-extras-save-status');
+	const maintenancePage = document.getElementById('core-extras-maintenance-page');
+	const clearMaintenancePage = document.getElementById('core-extras-maintenance-page-clear');
 	if (maintenancePage && clearMaintenancePage) {
 		clearMaintenancePage.addEventListener('click', () => {
 			maintenancePage.value = '0';
@@ -121,14 +121,14 @@
 			status.setAttribute('data-dirty-state', String(dirty));
 		}
 		root.querySelectorAll('[data-feature-state]').forEach(badge => {
-			const toggle = badge.closest('.site-staples-card').querySelector('.site-staples-switch');
+			const toggle = badge.closest('.core-extras-card').querySelector('.core-extras-switch');
 			badge.textContent = badge.getAttribute(toggle.checked ? 'data-on' : 'data-off');
 			badge.setAttribute('data-enabled', String(toggle.checked));
 		});
 		panels.forEach(panel => {
 			const count = panel.querySelector('[data-enabled-count]');
 			if (!count) return;
-			const toggles = Array.from(panel.querySelectorAll('.site-staples-switch'));
+			const toggles = Array.from(panel.querySelectorAll('.core-extras-switch'));
 			count.textContent = count.getAttribute('data-template').replace('%1$d', toggles.filter(toggle => toggle.checked).length).replace('%2$d', toggles.length);
 		});
 	};
@@ -144,7 +144,7 @@
 	let revealingInvalid = false;
 	root.addEventListener('invalid', (event) => {
 		if (event.target.form !== form) return;
-		const panel = event.target.closest('.site-staples-group');
+		const panel = event.target.closest('.core-extras-group');
 		if (panel && !revealingInvalid) {
 			activate(tabs[panels.indexOf(panel)], false, 'replace');
 			revealingInvalid = true;

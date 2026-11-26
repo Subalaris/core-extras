@@ -2,10 +2,10 @@
 /** Maintenance page selection, privacy boundaries, old settings and template-pipeline regressions. */
 require __DIR__ . '/bootstrap.php';
 
-use SiteStaples\Settings;
-use SiteStaples\Modules\Maintenance;
-use SiteStaples\Modules\Redirects;
-use SiteStaples\Modules\Transfer;
+use CoreExtras\Settings;
+use CoreExtras\Modules\Maintenance;
+use CoreExtras\Modules\Redirects;
+use CoreExtras\Modules\Transfer;
 
 $checks = 0;
 function maintenance_expect( $condition, $message ) {
@@ -60,7 +60,7 @@ try {
 	$upgraded=Settings::get();
 	maintenance_expect($upgraded['maintenance']['enabled'] && $upgraded['maintenance']['title']==='Existing title' && $upgraded['maintenance']['page_id']===0 && $upgraded['comments']['enabled'],'schema 2 settings upgrade without resetting maintenance or unrelated features');
 	maintenance_expect(get_option(Settings::OPTION)===$old,'reading an older configuration never rewrites it');
-	$doc=array('plugin'=>'site-staples','schema_version'=>2,'settings'=>$old);
+	$doc=array('plugin'=>'core-extras','schema_version'=>2,'settings'=>$old);
 	maintenance_expect($upgraded===Transfer::parse(wp_json_encode($doc)),'old schema 2 exports import with the default maintenance message');
 	$bad=$doc; $bad['settings']['maintenance']['page_id']=321;
 	maintenance_expect(is_wp_error(Transfer::parse(wp_json_encode($bad))),'schema 2 documents cannot smuggle in the new schema 3 field');
@@ -97,7 +97,7 @@ try {
 	maintenance_expect($GLOBALS['wp_query']->is_page && !$GLOBALS['wp_query']->is_404 && $GLOBALS['wp_query']->query_vars['post_status']==='publish','even missing requested URLs use a published-page query rather than a 404 template');
 	maintenance_expect($_SERVER['REQUEST_URI']==='/a-page-that-does-not-exist/?campaign=example','custom maintenance rendering preserves the visitor URL');
 	maintenance_expect(false===has_action('template_redirect','redirect_canonical') && false===has_action('template_redirect','wp_old_slug_redirect'),'canonical and old-slug redirects cannot redirect away from maintenance');
-	maintenance_expect(did_action('site_staples_maintenance_page')>0,'the custom maintenance response is marked for other Site Staples modules');
+	maintenance_expect(did_action('core_extras_maintenance_page')>0,'the custom maintenance response is marked for other CoreExtras modules');
 	$redirects=new Redirects(array('rules'=>array(array('from'=>'/a-page-that-does-not-exist','to'=>'/redirected','status'=>302))));
 	unset($GLOBALS['test_redirect']); $redirects->redirect();
 	maintenance_expect(!isset($GLOBALS['test_redirect']),'Simple redirects never overrides the selected maintenance page');
@@ -136,8 +136,8 @@ try {
 	$html=stream_get_contents($pipes[1]);fclose($pipes[1]);$err=stream_get_contents($pipes[2]);fclose($pipes[2]);
 	maintenance_expect(0===proc_close($p) && ''===$err,'custom-page selector renders without warnings');
 	$dom=new DOMDocument();libxml_use_internal_errors(true);$dom->loadHTML($html);libxml_clear_errors();$xpath=new DOMXPath($dom);
-	maintenance_expect(1===$xpath->query('//*[@id="staples-maintenance-page"]/option[@value="321" and @selected]')->length,'the native selector restores the selected published page');
-	maintenance_expect(0===$xpath->query('//*[@id="staples-maintenance-page"]/option[@value="322" or @value="323" or @value="324"]')->length,'private and password-protected pages never appear in the selector');
+	maintenance_expect(1===$xpath->query('//*[@id="core-extras-maintenance-page"]/option[@value="321" and @selected]')->length,'the native selector restores the selected published page');
+	maintenance_expect(0===$xpath->query('//*[@id="core-extras-maintenance-page"]/option[@value="322" or @value="323" or @value="324"]')->length,'private and password-protected pages never appear in the selector');
 	$default=$clean; $default['maintenance']['page_id']=0;
 	maintenance_expect(true===Settings::save($default) && 0===Settings::get()['maintenance']['page_id'] && null!==get_post(321),'removing the selection persists the default option without deleting the page');
 	$GLOBALS['test_caps']['manage_options']=false; $GLOBALS['test_logged_in']=false;

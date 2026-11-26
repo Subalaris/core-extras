@@ -1,7 +1,7 @@
 <?php
-/** SVG uploads with a bundled sanitizer and fail-closed validation. @package SiteStaples */
+/** SVG uploads with a bundled sanitizer and fail-closed validation. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
 final class Svg {
 	const MAX_BYTES = 2097152;
@@ -40,7 +40,7 @@ final class Svg {
 			return self::error();
 		}
 		try {
-			$sanitizer = new \SiteStaples\Vendor\SvgSanitize\Sanitizer();
+			$sanitizer = new \CoreExtras\Vendor\SvgSanitize\Sanitizer();
 			$sanitizer->removeRemoteReferences( true );
 			$clean = $sanitizer->sanitize( $dirty );
 			$doc = new \DOMDocument();
@@ -71,7 +71,7 @@ final class Svg {
 	}
 
 	private static function error() {
-		return new \WP_Error( 'unsafe_svg', __( 'This SVG could not be safely sanitized. Use a valid SVG with an SVG namespace, no DTD/entities, and a maximum size of 2 MB.', 'site-staples' ) );
+		return new \WP_Error( 'unsafe_svg', __( 'This SVG could not be safely sanitized. Use a valid SVG with an SVG namespace, no DTD/entities, and a maximum size of 2 MB.', 'core-extras' ) );
 	}
 
 	/** Validate and rewrite the temporary upload before WordPress moves it. */
@@ -87,7 +87,7 @@ final class Svg {
 
 	public function prefilter( $file ) {
 		if ( 'svg' === strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) ) && ! $this->clean_file( $file['tmp_name'] ) ) {
-			$file['error'] = __( 'SVG upload denied: check your role and provide a safely sanitizable SVG under 2 MB.', 'site-staples' );
+			$file['error'] = __( 'SVG upload denied: check your role and provide a safely sanitizable SVG under 2 MB.', 'core-extras' );
 		}
 		return $file;
 	}
@@ -108,7 +108,7 @@ final class Svg {
 	public function final_upload( $upload ) {
 		if ( ! empty( $upload['file'] ) && 'svg' === strtolower( pathinfo( $upload['file'], PATHINFO_EXTENSION ) ) && ( ! in_array( 'image/svg+xml', get_allowed_mime_types(), true ) || ! $this->clean_file( $upload['file'] ) ) ) {
 			wp_delete_file( $upload['file'] );
-			return array( 'error' => __( 'SVG upload rejected: role, MIME policy, or sanitization failed.', 'site-staples' ) );
+			return array( 'error' => __( 'SVG upload rejected: role, MIME policy, or sanitization failed.', 'core-extras' ) );
 		}
 		return $upload;
 	}

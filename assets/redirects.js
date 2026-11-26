@@ -1,10 +1,10 @@
 /* Paged, independent redirect saves: no large rule arrays are submitted with settings. */
 (() => {
 	'use strict';
-	const editor = document.getElementById('staples-redirect-editor');
+	const editor = document.getElementById('core-extras-redirect-editor');
 	if (!editor) return;
 	const info = document.querySelector('[data-redirect-info]');
-	const bubble = document.getElementById('staples-redirect-help');
+	const bubble = document.getElementById('core-extras-redirect-help');
 	if (info && bubble) {
 		const wrapper = info.parentElement;
 		let hovered = false, focused = false, pinned = false, dismissed = false;
@@ -26,15 +26,15 @@
 		});
 	}
 
-	const text = window.siteStaplesRedirects;
-	const featureToggle = document.getElementById('staples-redirects');
+	const text = window.coreExtrasRedirects;
+	const featureToggle = document.getElementById('core-extras-redirects');
 	const find = selector => editor.querySelector(selector);
 	const rows = find('[data-redirect-rows]');
 	const template = find('template');
 	const fresh = find('[data-redirect-new] [data-redirect-row]');
 	const newPanel = find('[data-redirect-new]');
 	const openNew = find('[data-redirect-open]');
-	const search = find('#staples-redirect-search');
+	const search = find('#core-extras-redirect-search');
 	const clearSearch = find('[data-redirect-clear]');
 	const message = find('[data-redirect-message]');
 	const prev = Array.from(editor.querySelectorAll('[data-redirect-prev]'));
@@ -76,7 +76,7 @@
 
 	const summary = () => text.summary.replace('%1$d', state.matched).replace('%2$d', state.total);
 	const renderPages = data => {
-		editor.querySelectorAll('.site-staples-redirect-pagination').forEach(pagination => {
+		editor.querySelectorAll('.core-extras-redirect-pagination').forEach(pagination => {
 			pagination.hidden = data.pages <= 1;
 		});
 		const start = Math.max(1, Math.min(data.page - 2, data.pages - 4));
@@ -123,7 +123,7 @@
 				value.textContent = value.dataset.redirectValue === 'status' ? Array.from(fresh.querySelector('select').options).find(option => option.value === String(rule.status)).textContent : rule[value.dataset.redirectValue];
 			});
 			const panel = row.querySelector('[data-redirect-edit-fields]');
-			panel.id = 'staples-redirect-row-' + index;
+			panel.id = 'core-extras-redirect-row-' + index;
 			row.querySelector('[data-redirect-edit]').setAttribute('aria-controls', panel.id);
 			row.querySelector('[data-redirect-edit]').setAttribute('aria-label', text.edit.replace('%s', rule.from));
 			fill(row, drafts.get(rule.from) || rule);
@@ -141,7 +141,7 @@
 		message.textContent = text.working;
 		let focusAfter = null;
 		try {
-			const body = new URLSearchParams({ action: 'site_staples_redirects', nonce: editor.dataset.nonce, operation, version: state.version, page: String(state.page), search: query, ...extra });
+			const body = new URLSearchParams({ action: 'core_extras_redirects', nonce: editor.dataset.nonce, operation, version: state.version, page: String(state.page), search: query, ...extra });
 			const response = await fetch(editor.dataset.url, { method: 'POST', credentials: 'same-origin', body });
 			const result = await response.json();
 			if (!response.ok || !result.success) throw Object.assign(new Error(result.data?.message || text.failed), { friendly: true });

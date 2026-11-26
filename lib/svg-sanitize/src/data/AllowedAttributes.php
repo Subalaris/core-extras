@@ -1,10 +1,10 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize\data;
+namespace CoreExtras\Vendor\SvgSanitize\data;
 
 /**
  * Class AllowedAttributes
  *
- * @package SiteStaples\Vendor\SvgSanitize\data
+ * @package CoreExtras\Vendor\SvgSanitize\data
  */
 class AllowedAttributes implements AttributeInterface
 {

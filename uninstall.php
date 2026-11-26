@@ -1,7 +1,7 @@
 <?php
-/** Explicit opt-in removal of configuration, never site content. @package SiteStaples */
+/** Explicit opt-in removal of configuration, never site content. @package CoreExtras */
 
-namespace SiteStaples;
+namespace CoreExtras;
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
@@ -16,7 +16,7 @@ function uninstall_site() {
 	delete_option( 'site_staples_settings' );
 	wp_unschedule_hook( 'site_staples_redirect_retire' );
 	global $wpdb;
-	$prefixes = array( '_transient_site_staples_', '_transient_timeout_site_staples_', 'site_staples_media_lock_', 'site_staples_revision_lock_', 'site_staples_redirect_' );
+	$prefixes = array( '_transient_core_extras_', '_transient_timeout_core_extras_', '_transient_site_staples_', '_transient_timeout_site_staples_', 'site_staples_media_lock_', 'site_staples_revision_lock_', 'site_staples_redirect_' );
 	foreach ( $prefixes as $prefix ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Delete only plugin-owned options; no content tables.
 		$names = $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( $prefix ) . '%' ) );
@@ -28,16 +28,16 @@ function uninstall_site() {
 
 if ( is_multisite() ) {
 	// Iterate bounded pages; each site independently chooses whether to erase its options.
-	$site_staples_offset = 0;
+	$core_extras_offset = 0;
 	do {
-		$site_staples_site_ids = get_sites( array( 'fields' => 'ids', 'number' => 100, 'offset' => $site_staples_offset ) );
-		foreach ( $site_staples_site_ids as $site_staples_site_id ) {
-			switch_to_blog( $site_staples_site_id );
+		$core_extras_site_ids = get_sites( array( 'fields' => 'ids', 'number' => 100, 'offset' => $core_extras_offset ) );
+		foreach ( $core_extras_site_ids as $core_extras_site_id ) {
+			switch_to_blog( $core_extras_site_id );
 			uninstall_site();
 			restore_current_blog();
 		}
-		$site_staples_offset += 100;
-	} while ( count( $site_staples_site_ids ) === 100 );
+		$core_extras_offset += 100;
+	} while ( count( $core_extras_site_ids ) === 100 );
 } else {
 	uninstall_site();
 }

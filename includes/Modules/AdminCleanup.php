@@ -1,7 +1,7 @@
 <?php
-/** Presentation-only admin cleanup by role. @package SiteStaples */
+/** Presentation-only admin cleanup by role. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
 final class AdminCleanup {
 	private $settings;

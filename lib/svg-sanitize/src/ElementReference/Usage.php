@@ -1,5 +1,5 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize\ElementReference;
+namespace CoreExtras\Vendor\SvgSanitize\ElementReference;
 
 class Usage
 {

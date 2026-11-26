@@ -2,12 +2,12 @@
 /** Scale, migration, failure recovery and API regressions using the isolated WordPress harness. */
 require __DIR__ . '/bootstrap.php';
 
-use SiteStaples\Settings;
-use SiteStaples\RedirectRules;
-use SiteStaples\RedirectStore;
-use SiteStaples\RedirectManager;
-use SiteStaples\Modules\Redirects;
-use SiteStaples\Modules\Transfer;
+use CoreExtras\Settings;
+use CoreExtras\RedirectRules;
+use CoreExtras\RedirectStore;
+use CoreExtras\RedirectManager;
+use CoreExtras\Modules\Redirects;
+use CoreExtras\Modules\Transfer;
 
 $assertions = 0;
 function redirect_expect( $condition, $label ) {
@@ -41,6 +41,7 @@ try {
 	unset($GLOBALS['test_fail_option_add']);
 	redirect_expect( true === Settings::migrate_redirects(), 'existing array rules migrate without reactivation' );
 	$generation = RedirectStore::current_token();
+	redirect_expect( get_option( 'site_staples_redirect_' . $generation ) === RedirectStore::document( $generation ), 'renamed plugin continues using existing redirect snapshot keys' );
 	redirect_expect( RedirectStore::valid_token( $generation ) && $legacy === Settings::get(), 'migration round trips the exact previous configuration' );
 	redirect_expect( true === Settings::migrate_redirects() && $generation === RedirectStore::current_token(), 'migration is idempotent' );
 	redirect_expect( array('url'=>'https://example.test/final','status'=>301) === runtime_redirects()->match('/old'), 'migrated chains collapse with the first source status' );
@@ -149,10 +150,10 @@ try {
 	RedirectStore::sweep();
 	redirect_expect(false===RedirectStore::document($orphan) && false!==RedirectStore::document(RedirectStore::current_token()), 'admin sweep removes abandoned snapshots and preserves the active one');
 	$config=Settings::get(); $config['uninstall']=false; Settings::save($config);
-	define('WP_UNINSTALL_PLUGIN',plugin_basename(SITE_STAPLES_FILE)); require dirname(__DIR__).'/uninstall.php';
+	define('WP_UNINSTALL_PLUGIN',plugin_basename(CORE_EXTRAS_FILE)); require dirname(__DIR__).'/uninstall.php';
 	$token=RedirectStore::current_token();
 	redirect_expect(false!==RedirectStore::document($token),'uninstall preserves redirect snapshots unless configuration removal is enabled');
-	$config['uninstall']=true; Settings::save($config); SiteStaples\uninstall_site();
+	$config['uninstall']=true; Settings::save($config); CoreExtras\uninstall_site();
 	$left=array_filter(array_keys($GLOBALS['test_options']),static fn($name)=>str_starts_with($name,RedirectStore::PREFIX));
 	redirect_expect(array()===array_values($left) && false===get_option(Settings::OPTION),'opt-in uninstall removes snapshot documents, lookup buckets and locks');
 

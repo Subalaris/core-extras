@@ -23,7 +23,7 @@ function _e( $s ) { echo esc_html( $s ); }
 function wp_enqueue_style( ...$args ) {}
 function wp_enqueue_script( ...$args ) {}
 function wp_localize_script( $handle, $name, $data ) { $GLOBALS['test_script_data'][$name]=$data; }
-$settings = SiteStaples\Settings::defaults();
+$settings = CoreExtras\Settings::defaults();
 if (in_array('--maintenance-pages',$argv,true)) {
 	foreach (array(321=>'publish',322=>'draft',323=>'publish',324=>'private') as $id=>$status) {
 		$GLOBALS['test_posts'][$id]=(object)array('ID'=>$id,'post_type'=>'page','post_status'=>$status,'post_password'=>$id===323?'secret':'','post_title'=>'Coming & Soon');
@@ -34,15 +34,15 @@ if (in_array('--maintenance-pages',$argv,true)) {
 if ( in_array( '--enabled', $argv, true ) ) {
 	foreach ( $settings as $key => &$value ) { if ( is_array( $value ) ) { $value['enabled'] = true; } } unset( $value );
 	$state = $settings; $state['comments']['scope'] = 'selected'; $state['comments']['post_types'] = array( 'post' ); $state['uninstall'] = true;
-	set_transient( SiteStaples\Modules\Transfer::transient_key(), array( 'settings' => $state, 'before' => $settings, 'token' => 'preview-token' ), 100 );
-	set_transient( SiteStaples\Modules\Revisions::transient_key(), array( 'count' => 205, 'deleted' => 100, 'remaining' => 105, 'limit' => 10, 'watermark' => 500, 'token' => 'revision-token' ), 100 );
+	set_transient( CoreExtras\Modules\Transfer::transient_key(), array( 'settings' => $state, 'before' => $settings, 'token' => 'preview-token' ), 100 );
+	set_transient( CoreExtras\Modules\Revisions::transient_key(), array( 'count' => 205, 'deleted' => 100, 'remaining' => 105, 'limit' => 10, 'watermark' => 500, 'token' => 'revision-token' ), 100 );
 }
-update_option( SiteStaples\Settings::OPTION, $settings );
-$admin = new SiteStaples\Admin(); $admin->settings(); $admin->assets('settings_page_site-staples');
+update_option( CoreExtras\Settings::OPTION, $settings );
+$admin = new CoreExtras\Admin(); $admin->settings(); $admin->assets('settings_page_core-extras');
 $css = 'file://' . ABSPATH . 'wp-admin/css/';
-echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Site Staples — isolated admin renderer</title>';
+echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CoreExtras — isolated admin renderer</title>';
 foreach ( array( 'common', 'forms', 'buttons', 'list-tables' ) as $sheet ) { echo '<link rel="stylesheet" href="' . esc_attr( ( 'buttons' === $sheet ? 'file://' . ABSPATH . 'wp-includes/css/' : $css ) . $sheet . '.css' ) . '">'; }
-echo '<script>window.siteStaplesRedirects=' . json_encode($GLOBALS['test_script_data']['siteStaplesRedirects'],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) . ';</script>';
+echo '<script>window.coreExtrasRedirects=' . json_encode($GLOBALS['test_script_data']['coreExtrasRedirects'],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) . ';</script>';
 echo '<link rel="stylesheet" href="file://' . dirname( __DIR__ ) . '/assets/admin.css"><script defer src="file://' . dirname( __DIR__ ) . '/assets/redirects.js"></script><script defer src="file://' . dirname( __DIR__ ) . '/assets/admin.js"></script>';
 echo '</head><body class="wp-admin wp-core-ui"><main id="wpbody-content">';
 $admin->render();

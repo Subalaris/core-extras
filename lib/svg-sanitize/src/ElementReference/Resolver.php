@@ -1,9 +1,9 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize\ElementReference;
+namespace CoreExtras\Vendor\SvgSanitize\ElementReference;
 
-use SiteStaples\Vendor\SvgSanitize\data\XPath;
-use SiteStaples\Vendor\SvgSanitize\Exceptions\NestingException;
-use SiteStaples\Vendor\SvgSanitize\Helper;
+use CoreExtras\Vendor\SvgSanitize\data\XPath;
+use CoreExtras\Vendor\SvgSanitize\Exceptions\NestingException;
+use CoreExtras\Vendor\SvgSanitize\Helper;
 
 class Resolver
 {

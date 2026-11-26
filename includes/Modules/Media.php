@@ -1,9 +1,9 @@
 <?php
-/** Local media replacement with staged files, backups and rollback. @package SiteStaples */
+/** Local media replacement with staged files, backups and rollback. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
-use SiteStaples\Guard;
+use CoreExtras\Guard;
 
 final class Media {
 	const TYPES = array( 'jpg|jpeg|jpe' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp', 'avif' => 'image/avif' );
@@ -12,21 +12,21 @@ final class Media {
 
 	public function register() {
 		add_action( 'add_meta_boxes_attachment', array( $this, 'metabox' ) );
-		add_action( 'admin_post_site_staples_replace', array( $this, 'handle' ) );
+		add_action( 'admin_post_core_extras_replace', array( $this, 'handle' ) );
 		add_action( 'admin_footer-post.php', array( $this, 'form' ) );
 		add_action( 'admin_notices', array( $this, 'notice' ) );
 	}
 
 	public function metabox( $post ) {
 		if ( current_user_can( 'upload_files' ) && current_user_can( 'edit_post', $post->ID ) ) {
-			add_meta_box( 'site-staples-replace', __( 'Replace file', 'site-staples' ), array( $this, 'box' ), 'attachment', 'side' );
+			add_meta_box( 'core-extras-replace', __( 'Replace file', 'core-extras' ), array( $this, 'box' ), 'attachment', 'side' );
 		}
 	}
 
 	public function box( $post ) {
-		echo '<p>' . esc_html__( 'Replace this JPEG, PNG, GIF, WebP or AVIF with the same file type and extension. The attachment ID and public URL stay the same. Image dimensions may change; cached copies may take time to refresh.', 'site-staples' ) . '</p>';
-		echo '<p><label for="site-staples-file">' . esc_html__( 'Replacement file', 'site-staples' ) . '</label><br><input id="site-staples-file" form="site-staples-replace-form" type="file" name="replacement" required accept="image/jpeg,image/png,image/gif,image/webp,image/avif"></p>';
-		echo '<p><button type="submit" class="button" form="site-staples-replace-form">' . esc_html__( 'Replace file', 'site-staples' ) . '</button></p>';
+		echo '<p>' . esc_html__( 'Replace this JPEG, PNG, GIF, WebP or AVIF with the same file type and extension. The attachment ID and public URL stay the same. Image dimensions may change; cached copies may take time to refresh.', 'core-extras' ) . '</p>';
+		echo '<p><label for="core-extras-file">' . esc_html__( 'Replacement file', 'core-extras' ) . '</label><br><input id="core-extras-file" form="core-extras-replace-form" type="file" name="replacement" required accept="image/jpeg,image/png,image/gif,image/webp,image/avif"></p>';
+		echo '<p><button type="submit" class="button" form="core-extras-replace-form">' . esc_html__( 'Replace file', 'core-extras' ) . '</button></p>';
 	}
 
 	/** Keep the upload separate from WordPress’s existing attachment edit form. */
@@ -35,17 +35,17 @@ final class Media {
 		if ( ! $post || 'attachment' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) || ! current_user_can( 'upload_files' ) ) {
 			return;
 		}
-		echo '<form hidden id="site-staples-replace-form" method="post" enctype="multipart/form-data" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		echo '<input type="hidden" name="action" value="site_staples_replace"><input type="hidden" name="attachment_id" value="' . esc_attr( $post->ID ) . '">';
-		Guard::nonce( 'site_staples_replace_' . $post->ID );
+		echo '<form hidden id="core-extras-replace-form" method="post" enctype="multipart/form-data" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo '<input type="hidden" name="action" value="core_extras_replace"><input type="hidden" name="attachment_id" value="' . esc_attr( $post->ID ) . '">';
+		Guard::nonce( 'core_extras_replace_' . $post->ID );
 		echo '</form>';
 	}
 
 	public function notice() {
 		$screen = get_current_screen();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice flag; no state change.
-		if ( $screen && 'attachment' === $screen->id && isset( $_GET['staples_replaced'] ) ) {
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'File replaced. Image dimensions may have changed. Cached copies may take time to refresh.', 'site-staples' ) . '</p></div>';
+		if ( $screen && 'attachment' === $screen->id && isset( $_GET['core_extras_replaced'] ) ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'File replaced. Image dimensions may have changed. Cached copies may take time to refresh.', 'core-extras' ) . '</p></div>';
 		}
 	}
 
@@ -73,14 +73,14 @@ final class Media {
 
 	private static function error( $code = 'replace' ) {
 		$messages = array(
-			'upload' => __( 'No valid replacement upload was received.', 'site-staples' ),
-			'type' => __( 'Use a valid supported image with exactly the original MIME type and extension, within the upload size limit.', 'site-staples' ),
-			'permission' => __( 'You cannot replace this attachment.', 'site-staples' ),
-			'path' => __( 'Replacement requires writable local files inside this site’s uploads directory. Remote storage and symbolic links are not supported.', 'site-staples' ),
-			'busy' => __( 'This attachment is already being replaced. Try again shortly.', 'site-staples' ),
-			'replace' => __( 'Replacement failed. The original file and attachment data were retained.', 'site-staples' ),
+			'upload' => __( 'No valid replacement upload was received.', 'core-extras' ),
+			'type' => __( 'Use a valid supported image with exactly the original MIME type and extension, within the upload size limit.', 'core-extras' ),
+			'permission' => __( 'You cannot replace this attachment.', 'core-extras' ),
+			'path' => __( 'Replacement requires writable local files inside this site’s uploads directory. Remote storage and symbolic links are not supported.', 'core-extras' ),
+			'busy' => __( 'This attachment is already being replaced. Try again shortly.', 'core-extras' ),
+			'replace' => __( 'Replacement failed. The original file and attachment data were retained.', 'core-extras' ),
 		);
-		return new \WP_Error( 'site_staples_media_' . $code, $messages[ $code ] );
+		return new \WP_Error( 'core_extras_media_' . $code, $messages[ $code ] );
 	}
 
 	/** Isolate all new files until metadata generation has succeeded. */
@@ -116,7 +116,7 @@ final class Media {
 		if ( ! add_option( $lock_key, time(), '', false ) ) {
 			return self::error( 'busy' );
 		}
-		$stage = dirname( $target ) . '/.site-staples-' . wp_generate_password( 24, false );
+		$stage = dirname( $target ) . '/.core-extras-' . wp_generate_password( 24, false );
 		$had_meta = metadata_exists( 'post', $id, '_wp_attachment_metadata' );
 		$meta = get_post_meta( $id, '_wp_attachment_metadata', true );
 		$backup_sizes = get_post_meta( $id, '_wp_attachment_backup_sizes', true );
@@ -231,11 +231,11 @@ final class Media {
 	public function handle() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- ID scopes the nonce verified by Guard::post() immediately below; no mutation before verification.
 		$id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
-		Guard::post( 'site_staples_replace_' . $id, 'upload_files' );
+		Guard::post( 'core_extras_replace_' . $id, 'upload_files' );
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Guard::post() verifies the nonce above; validated as bytes and MIME by replace().
 		Guard::result( $this->replace( $id, $_FILES['replacement'] ?? array() ) );
-		wp_safe_redirect( add_query_arg( 'staples_replaced', '1', get_edit_post_link( $id, 'raw' ) ) );
+		wp_safe_redirect( add_query_arg( 'core_extras_replaced', '1', get_edit_post_link( $id, 'raw' ) ) );
 		exit;
 	}
 }

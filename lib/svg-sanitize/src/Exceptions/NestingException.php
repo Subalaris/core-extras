@@ -1,5 +1,5 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize\Exceptions;
+namespace CoreExtras\Vendor\SvgSanitize\Exceptions;
 
 use Exception;
 

@@ -2,10 +2,10 @@
 /**
  * Small autoloader; disabled modules do not load their PHP files.
  *
- * @package SiteStaples
+ * @package CoreExtras
  */
 
-namespace SiteStaples;
+namespace CoreExtras;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

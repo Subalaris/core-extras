@@ -1,13 +1,13 @@
 # Bundled dependency
 
-Site Staples bundles **enshrined/svg-sanitize 1.0.0** by Daryll Doyle and contributors,
+CoreExtras bundles **enshrined/svg-sanitize 1.0.0** by Daryll Doyle and contributors,
 licensed GPL-2.0-or-later. Its complete runtime source is in `lib/svg-sanitize/src/`;
 its license and original Composer metadata are in the parent directory.
 
 Upstream: https://github.com/darylldoyle/svg-sanitizer/tree/1.0.0
 
 Files were retrieved from that tag's raw source. Runtime source changes are limited to namespace isolation: `enshrined\svgSanitize` becomes
-`SiteStaples\Vendor\SvgSanitize`. This prevents conflicts with other plugins
+`CoreExtras\Vendor\SvgSanitize`. This prevents conflicts with other plugins
 using another sanitizer version. A PHPCS comment documents that the nesting
 exception carries a DOM element as context rather than rendering it. `lib/svg-sanitize/SHA256SUMS` records bundled
 file hashes. The scanner CLI is not a runtime dependency and is not distributed.

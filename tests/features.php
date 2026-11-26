@@ -2,15 +2,15 @@
 /** Regression tests for the 1.1 roadmap modules and legacy migration. */
 require __DIR__ . '/bootstrap.php';
 
-use SiteStaples\Settings;
-use SiteStaples\Plugin;
-use SiteStaples\RedirectRules;
-use SiteStaples\Modules\Transfer;
-use SiteStaples\Modules\Redirects;
-use SiteStaples\Modules\ImageSizes;
-use SiteStaples\Modules\Maintenance;
-use SiteStaples\Modules\AdminCleanup;
-use SiteStaples\Modules\Columns;
+use CoreExtras\Settings;
+use CoreExtras\Plugin;
+use CoreExtras\RedirectRules;
+use CoreExtras\Modules\Transfer;
+use CoreExtras\Modules\Redirects;
+use CoreExtras\Modules\ImageSizes;
+use CoreExtras\Modules\Maintenance;
+use CoreExtras\Modules\AdminCleanup;
+use CoreExtras\Modules\Columns;
 
 $count = 0;
 function check_feature( $condition, $label ) {
@@ -45,16 +45,23 @@ try {
 		check_feature( ! class_exists($class, false), 'disabled module does not load: ' . $class );
 	}
 	$legacy = Settings::legacy_defaults(); $legacy['comments']['enabled'] = true; $legacy['revisions']['limit'] = 7;
-	update_option( Settings::OPTION, $legacy ); $upgraded = Settings::get();
+	update_option( 'site_staples_settings', $legacy ); $upgraded = Settings::get();
 	check_feature( $upgraded['comments']['enabled'] && 7 === $upgraded['revisions']['limit'], 'upgrade preserves existing feature settings' );
 	foreach ( array('image_sizes','redirects','maintenance','admin_cleanup','columns') as $key ) { check_feature( false === $upgraded[$key]['enabled'], 'new module defaults disabled on upgrade: ' . $key ); }
 	check_feature( $legacy === get_option(Settings::OPTION), 'reading legacy configuration does not write options' );
-	$doc = array( 'plugin' => 'site-staples', 'schema_version' => 1, 'settings' => $legacy );
+	$doc = array( 'plugin' => 'core-extras', 'schema_version' => 1, 'settings' => $legacy );
 	check_feature( $upgraded === Transfer::parse(wp_json_encode($doc)), 'complete legacy exports upgrade without activating new modules' );
 	$bad=$doc; $bad['settings']['maintenance']=Settings::defaults()['maintenance']; check_feature( is_wp_error(Transfer::parse(wp_json_encode($bad))), 'version 1 imports cannot smuggle version 2 fields' );
 	$bad=$doc; unset($bad['settings']['svg']); check_feature( is_wp_error(Transfer::parse(wp_json_encode($bad))), 'partial legacy export rejected' );
 	$doc['schema_version']=Transfer::SCHEMA_VERSION; $doc['settings']=$upgraded;
 	check_feature( $upgraded === Transfer::parse(wp_json_encode($doc)), 'current configuration round trips' );
+	check_feature( 'core-extras' === Transfer::document()['plugin'], 'new settings exports use the CoreExtras identity' );
+	foreach ( array( 1 => Settings::legacy_defaults(), 2 => Settings::v2_defaults(), 3 => Settings::defaults() ) as $schema => $settings ) {
+		$old_export = array( 'plugin' => 'site-staples', 'schema_version' => $schema, 'settings' => $settings );
+		check_feature( Settings::upgrade( $settings ) === Transfer::parse( wp_json_encode( $old_export ) ), 'Site Staples schema ' . $schema . ' exports remain importable after the rename' );
+	}
+	$bad = $doc; $bad['plugin'] = 'unrelated-plugin';
+	check_feature( is_wp_error( Transfer::parse( wp_json_encode( $bad ) ) ), 'rename compatibility still rejects unrelated plugin exports' );
 	$bad=$doc; $bad['settings']['redirects']['rules']=(object)array(); check_feature( is_wp_error(Transfer::parse(wp_json_encode($bad))), 'redirect rules require a JSON array' );
 	$bad=$doc; $bad['settings']['columns']['show_id']='true'; check_feature( is_wp_error(Transfer::parse(wp_json_encode($bad))), 'column flags require booleans' );
 	$bad=$doc; $bad['settings']['maintenance']['message']='<script>alert(1)</script>'; check_feature( is_wp_error(Transfer::parse(wp_json_encode($bad))), 'imported maintenance text must be plain text' );
@@ -134,7 +141,7 @@ try {
 	try { $maintenance->display(); } catch(RuntimeException $e) { $caught=503===$e->getCode(); }
 	check_feature( $caught, 'maintenance visitor page sends HTTP 503 through WordPress' );
 	$GLOBALS['test_caps']['manage_options']=true; check_feature( null===$maintenance->display() && 'existing'===$maintenance->rest('existing',null,null), 'administrative bypass preserves normal page and REST results' );
-	$bar=new TestToolbar(); $maintenance->toolbar($bar); check_feature( isset($bar->added['site-staples-maintenance']), 'administrator sees maintenance recovery link' );
+	$bar=new TestToolbar(); $maintenance->toolbar($bar); check_feature( isset($bar->added['core-extras-maintenance']), 'administrator sees maintenance recovery link' );
 	$maintenance->register(); $redirects->register(); check_feature( 0===has_action('template_redirect',array($maintenance,'display')) && 5===has_action('template_redirect',array($redirects,'redirect')), 'maintenance runs before redirects' );
 	$GLOBALS['test_caps']['manage_options']=false; $GLOBALS['test_roles']=array('subscriber'); unset($GLOBALS['test_redirect']); $caught=false; try { do_action('template_redirect'); } catch(RuntimeException $e) { $caught=503===$e->getCode(); } check_feature( $caught && !isset($GLOBALS['test_redirect']), 'maintenance stops frontend dispatch before a redirect can run' ); $GLOBALS['test_caps']['manage_options']=true;
 	$GLOBALS['test_is_admin']=true;
@@ -147,11 +154,11 @@ try {
 
 	$columns=new Columns(array('post_types'=>array('post','page'),'show_id'=>true,'show_thumbnail'=>true,'show_modified'=>true)); $columns->types();
 	check_feature( has_filter('manage_post_posts_columns') && has_filter('manage_page_posts_columns') && ! has_filter('manage_book_posts_columns'), 'columns register only for explicitly selected types' );
-	$cols=$columns->columns(array('title'=>'Title')); check_feature( isset($cols['title'],$cols['site_staples_id'],$cols['site_staples_thumbnail'],$cols['site_staples_modified']), 'columns preserve original list and add selected data' );
-	ob_start(); $columns->cell('site_staples_id',42); $out=ob_get_clean(); check_feature('42'===$out,'ID cell uses the content ID');
-	ob_start(); $columns->cell('site_staples_thumbnail',42); $out=ob_get_clean(); check_feature(str_contains($out,'No featured image'),'empty thumbnail state is explained');
-	$GLOBALS['test_thumbnail']=true; ob_start(); $columns->cell('site_staples_thumbnail',42); $out=ob_get_clean(); check_feature(str_contains($out,'width="50"'),'thumbnail uses native image markup');
-	$GLOBALS['test_caps']['read_post']=false; ob_start(); $columns->cell('site_staples_id',42); $out=ob_get_clean(); check_feature(''===$out,'column output respects source read permissions');
+	$cols=$columns->columns(array('title'=>'Title')); check_feature( isset($cols['title'],$cols['core_extras_id'],$cols['core_extras_thumbnail'],$cols['core_extras_modified']), 'columns preserve original list and add selected data' );
+	ob_start(); $columns->cell('core_extras_id',42); $out=ob_get_clean(); check_feature('42'===$out,'ID cell uses the content ID');
+	ob_start(); $columns->cell('core_extras_thumbnail',42); $out=ob_get_clean(); check_feature(str_contains($out,'No featured image'),'empty thumbnail state is explained');
+	$GLOBALS['test_thumbnail']=true; ob_start(); $columns->cell('core_extras_thumbnail',42); $out=ob_get_clean(); check_feature(str_contains($out,'width="50"'),'thumbnail uses native image markup');
+	$GLOBALS['test_caps']['read_post']=false; ob_start(); $columns->cell('core_extras_id',42); $out=ob_get_clean(); check_feature(''===$out,'column output respects source read permissions');
 	$none=new Columns(array('post_types'=>array('post'),'show_id'=>false,'show_thumbnail'=>false,'show_modified'=>false)); check_feature(array('title'=>'Title')===$none->columns(array('title'=>'Title')),'unselected column options leave list unchanged');
 	echo "$count roadmap feature assertions passed.\n";
 } finally {

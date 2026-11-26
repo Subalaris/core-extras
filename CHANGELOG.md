@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.2 — 2026-11-25
+
+- Renamed the plugin to CoreExtras with the `core-extras` slug and text domain.
+- Updated the settings screen, assets, PHP namespaces, translations and release packaging.
+- Removed the previous wordmark and use a plain text CoreExtras heading.
+- Preserved existing settings, redirect snapshots and settings export compatibility.
+
 ## 1.3.1 — 2026-10-24
 
 - Render custom maintenance pages in a content-only canvas, automatically omitting

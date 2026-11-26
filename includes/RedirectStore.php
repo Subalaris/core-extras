@@ -1,9 +1,10 @@
 <?php
-/** Immutable redirect snapshots backed by WordPress's indexed, non-autoloaded options. @package SiteStaples */
+/** Immutable redirect snapshots backed by WordPress's indexed, non-autoloaded options. @package CoreExtras */
 
-namespace SiteStaples;
+namespace CoreExtras;
 
 final class RedirectStore {
+	// Existing settings reference snapshots under this prefix; preserve them on rename.
 	const PREFIX = 'site_staples_redirect_';
 	private static $locked = false;
 	private static $lease = '';
@@ -48,7 +49,7 @@ final class RedirectStore {
 	}
 
 	private static function busy_error() {
-		return new \WP_Error( 'busy', __( 'Another settings update is running. Wait a moment and try again.', 'site-staples' ) );
+		return new \WP_Error( 'busy', __( 'Another settings update is running. Wait a moment and try again.', 'core-extras' ) );
 	}
 
 	public static function owns_lock() {
@@ -126,7 +127,7 @@ final class RedirectStore {
 	}
 
 	public static function save_error() {
-		return new \WP_Error( 'save', __( 'Redirects could not be saved. The previous rules remain active. Try again.', 'site-staples' ) );
+		return new \WP_Error( 'save', __( 'Redirects could not be saved. The previous rules remain active. Try again.', 'core-extras' ) );
 	}
 
 	/** Retire snapshots after a grace period so requests already in flight can finish. */

@@ -1,4 +1,4 @@
-# Verification — Site Staples 1.0.0
+# Verification — CoreExtras 1.0.0
 
 Run date: 2026-10-22. PHP CLI 8.5.4, DOM/Libxml, Fileinfo, GD, Python 3/SQLite,
 and local WordPress 7.1.3 core source. Minimum declared support is WordPress 6.6 /
@@ -42,7 +42,7 @@ PHP 8.1; that version matrix has **not** been executed in this sandbox.
   explicit required confirmations, preview tokens, readable change descriptions
   and labeled import selection.
 - `php tools/lint.php`: syntax checks on all first-party, test, tool and bundled
-  PHP files. Release archive inspection checks a single `site-staples/` root,
+  PHP files. Release archive inspection checks a single `core-extras/` root,
   bundled sanitizer/license, required runtime files and no development files.
 
 ## Scope and unverified work

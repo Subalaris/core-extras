@@ -1,17 +1,17 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize;
+namespace CoreExtras\Vendor\SvgSanitize;
 
-use SiteStaples\Vendor\SvgSanitize\data\AllowedAttributes;
-use SiteStaples\Vendor\SvgSanitize\data\AllowedTags;
-use SiteStaples\Vendor\SvgSanitize\data\AttributeInterface;
-use SiteStaples\Vendor\SvgSanitize\data\TagInterface;
-use SiteStaples\Vendor\SvgSanitize\data\XPath;
-use SiteStaples\Vendor\SvgSanitize\ElementReference\Resolver;
+use CoreExtras\Vendor\SvgSanitize\data\AllowedAttributes;
+use CoreExtras\Vendor\SvgSanitize\data\AllowedTags;
+use CoreExtras\Vendor\SvgSanitize\data\AttributeInterface;
+use CoreExtras\Vendor\SvgSanitize\data\TagInterface;
+use CoreExtras\Vendor\SvgSanitize\data\XPath;
+use CoreExtras\Vendor\SvgSanitize\ElementReference\Resolver;
 
 /**
  * Class Sanitizer
  *
- * @package SiteStaples\Vendor\SvgSanitize
+ * @package CoreExtras\Vendor\SvgSanitize
  */
 class Sanitizer
 {

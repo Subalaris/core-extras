@@ -1,7 +1,7 @@
 <?php
-/** Optional, unsortable content information columns with native thumbnails. @package SiteStaples */
+/** Optional, unsortable content information columns with native thumbnails. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
 final class Columns {
 	private $settings;
@@ -26,13 +26,13 @@ final class Columns {
 
 	public function columns( $columns ) {
 		if ( $this->settings['show_id'] ) {
-			$columns['site_staples_id'] = __( 'ID', 'site-staples' );
+			$columns['core_extras_id'] = __( 'ID', 'core-extras' );
 		}
 		if ( $this->settings['show_thumbnail'] ) {
-			$columns['site_staples_thumbnail'] = __( 'Featured image', 'site-staples' );
+			$columns['core_extras_thumbnail'] = __( 'Featured image', 'core-extras' );
 		}
 		if ( $this->settings['show_modified'] ) {
-			$columns['site_staples_modified'] = __( 'Last modified', 'site-staples' );
+			$columns['core_extras_modified'] = __( 'Last modified', 'core-extras' );
 		}
 		return $columns;
 	}
@@ -42,18 +42,18 @@ final class Columns {
 			return;
 		}
 		switch ( $column ) {
-			case 'site_staples_id':
+			case 'core_extras_id':
 				if ( $this->settings['show_id'] ) {
 					echo esc_html( $id );
 				}
 				break;
-			case 'site_staples_thumbnail':
+			case 'core_extras_thumbnail':
 				if ( $this->settings['show_thumbnail'] ) {
 					$image = get_the_post_thumbnail( $id, array( 50, 50 ), array( 'alt' => '', 'loading' => 'lazy' ) );
-					echo $image ?: esc_html__( 'No featured image', 'site-staples' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core-generated image markup.
+					echo $image ?: esc_html__( 'No featured image', 'core-extras' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core-generated image markup.
 				}
 				break;
-			case 'site_staples_modified':
+			case 'core_extras_modified':
 				if ( $this->settings['show_modified'] ) {
 					echo esc_html( get_post_modified_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), false, $id, true ) );
 				}

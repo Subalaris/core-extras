@@ -1,5 +1,5 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize;
+namespace CoreExtras\Vendor\SvgSanitize;
 
 class Helper
 {

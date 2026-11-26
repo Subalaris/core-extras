@@ -1,8 +1,8 @@
-# Site Staples 1.3.1
+# CoreExtras 1.3.2
 
 A lightweight WordPress plugin with eleven practical, independently enabled modules.
 Every module starts disabled and registers its functionality only when enabled.
-Settings are under **Settings → Site Staples**. No services, telemetry, advertising,
+Settings are under **Settings → CoreExtras**. No services, telemetry, advertising,
 JavaScript framework, frontend assets or network calls are used. Old redirect
 snapshots are retired by one-time WordPress cron jobs, with admin cleanup as a fallback.
 
@@ -16,8 +16,8 @@ snapshots are retired by one-time WordPress cron jobs, with admin cleanup as a f
 When using the source repository, run `php tools/package.php` to build the
 installable ZIP; generated archives are excluded from Git.
 
-Upload `dist/site-staples-1.3.1.zip` through **Plugins → Add New → Upload Plugin**,
-install, and activate. The ZIP contains the `site-staples/` plugin folder, including
+Upload `dist/core-extras-1.3.2.zip` through **Plugins → Add New → Upload Plugin**,
+install, and activate. The ZIP contains the `core-extras/` plugin folder, including
 the sanitizer. Alternatively copy the source folder into `wp-content/plugins/`.
 No Composer installation is required on the server. Enable the desired modules
 and save. Settings and content are preserved on activation and deactivation.
@@ -78,7 +78,7 @@ Editing locks, old slugs, trash state, unique-looking IDs/SKUs/tokens and protec
 integration metadata are excluded. `_thumbnail_id` and `_wp_page_template` are
 known safe exceptions. There is no universal registry of unique third-party
 metadata: review integrations that put unique data in ordinary custom fields.
-Developers can use `site_staples_duplicate_meta_key( $copy, $key, $source_post )`
+Developers can use `core_extras_duplicate_meta_key( $copy, $key, $source_post )`
 to opt appropriate fields in or out; hard-excluded editing/unique keys stay out.
 Post passwords, source author, slug/GUID and publication date are not copied.
 
@@ -109,7 +109,7 @@ nonlocal storage. Custom storage/metadata hooks may need integration. As with
 other filesystem operations, a process kill, machine crash, exhausted filesystem
 or failed filesystem rollback cannot be made fully atomic with the database.
 Backups are recommended. A process killed mid-operation may leave a
-`.site-staples-*` directory and `site_staples_media_lock_ID` option; an administrator
+`.core-extras-*` directory and a per-attachment operation lock; an administrator
 should inspect/recover staged backups before removing that specific stale lock.
 
 ### Revision limits and cleanup
@@ -129,7 +129,7 @@ the newest N normal revisions remain; revisions created after the preview are
 excluded. Cleanup requires `manage_options` and permission to delete each parent.
 A changed limit invalidates the run. Previews expire after one hour. A per-site lock prevents overlapping cleanup
 requests. After a killed request, inspect for active cleanup workers before
-removing a stale `site_staples_revision_lock_SITEID` option. No unattended
+removing a stale per-site revision cleanup lock. No unattended
 job continues deletion. Back up the database first. SQL preview/count work may
 still take time on a very large revisions table; deletion requests are bounded.
 
@@ -254,14 +254,14 @@ review the local page title in the preview before applying it.
 
 Without a selected custom page, frontend pages return WordPress's native standalone page with **HTTP 503**,
 no-cache headers and `Retry-After: 3600`. REST requests from visitors also return
-503. Maintenance runs before Site Staples redirects. **Login, wp-admin, AJAX,
+503. Maintenance runs before CoreExtras redirects. **Login, wp-admin, AJAX,
 cron, XML-RPC and static uploads remain available** for recovery and background
 work. This is a visitor notice, not a content privacy/security feature.
 
 Page caches, reverse proxies and CDNs may serve pages without executing WordPress.
 Purge or disable those caches when enabling/disabling maintenance. If you lose a
 normal admin session, log in at WordPress's login URL and disable the setting.
-Deactivating Site Staples restores normal frontend responses on the next request.
+Deactivating CoreExtras restores normal frontend responses on the next request.
 
 ### Dashboard & toolbar
 
@@ -287,7 +287,7 @@ Dates use the site's date/time format. Disable the module to remove its columns.
 
 ## Architecture and development
 
-`site-staples.php` registers lifecycle hooks and a small namespace autoloader.
+`core-extras.php` registers lifecycle hooks and a small namespace autoloader.
 `includes/Plugin.php` conditionally instantiates enabled modules. Disabled modules
 and their dependencies are not loaded. `includes/Settings.php` owns the exact
 schema and Settings API sanitization. `includes/Admin.php` renders feature cards
@@ -337,6 +337,19 @@ Plugin Check against the release ZIP, rather than the source checkout: the
 checkout intentionally contains CLI tests, packaging tools and coding-standard
 configuration. Dependency attribution ships as `THIRD-PARTY.txt` in the ZIP.
 
+## Upgrading from an earlier name
+
+The plugin uses the CoreExtras name starting with version 1.3.2.
+Deactivate any older copy before installing and activating CoreExtras; do not run
+both copies together. Settings are now under **Settings → CoreExtras**.
+Existing settings and redirect snapshots use their original database keys so
+they remain available without a data migration. New exports identify the plugin
+as `core-extras`; imports also accept earlier exports for schema versions
+1, 2 and 3. Developer hooks now use the `core_extras_` prefix.
+
+If removing the old copy, leave its configuration-removal option disabled before
+deleting it: both names share the same stored configuration.
+
 ## Multisite
 
 Version 1 provides **per-site settings only**. Site activation initializes disabled
@@ -351,7 +364,7 @@ review uninstall runtime limits.
 
 ## Deactivation and uninstall
 
-Deactivation preserves all settings and content. With **Remove Site Staples
+Deactivation preserves all settings and content. With **Remove CoreExtras
 configuration when the plugin is deleted** off (the default), uninstall also
 preserves configuration. Turn it on and save before deleting the plugin to remove
 that site's configuration and plugin-owned temporary administrative options.

@@ -1,9 +1,9 @@
 <?php
-/** Permission-aware draft duplication. @package SiteStaples */
+/** Permission-aware draft duplication. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
-use SiteStaples\Guard;
+use CoreExtras\Guard;
 
 final class Duplicate {
 	private $settings;
@@ -15,7 +15,7 @@ final class Duplicate {
 	public function register() {
 		add_filter( 'post_row_actions', array( $this, 'actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'actions' ), 10, 2 );
-		add_action( 'admin_post_site_staples_duplicate', array( $this, 'handle' ) );
+		add_action( 'admin_post_core_extras_duplicate', array( $this, 'handle' ) );
 	}
 
 	public function permitted( $post ) {
@@ -26,15 +26,15 @@ final class Duplicate {
 	public function actions( $actions, $post ) {
 		if ( $this->permitted( $post ) ) {
 			// A native button submits a hidden POST form rendered once in the footer.
-			$actions['site_staples_duplicate'] = sprintf(
-				'<button type="submit" class="button-link" form="site-staples-duplicate-%1$d">%2$s</button>',
+			$actions['core_extras_duplicate'] = sprintf(
+				'<button type="submit" class="button-link" form="core-extras-duplicate-%1$d">%2$s</button>',
 				$post->ID,
-				esc_html__( 'Duplicate as draft', 'site-staples' )
+				esc_html__( 'Duplicate as draft', 'core-extras' )
 			);
 			add_action( 'admin_footer', function () use ( $post ) {
-				echo '<form hidden id="site-staples-duplicate-' . esc_attr( $post->ID ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" method="post">';
-				echo '<input type="hidden" name="action" value="site_staples_duplicate"><input type="hidden" name="post_id" value="' . esc_attr( $post->ID ) . '">';
-				Guard::nonce( 'site_staples_duplicate_' . $post->ID );
+				echo '<form hidden id="core-extras-duplicate-' . esc_attr( $post->ID ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" method="post">';
+				echo '<input type="hidden" name="action" value="core_extras_duplicate"><input type="hidden" name="post_id" value="' . esc_attr( $post->ID ) . '">';
+				Guard::nonce( 'core_extras_duplicate_' . $post->ID );
 				echo '</form>';
 			} );
 		}
@@ -50,18 +50,18 @@ final class Duplicate {
 		}
 		$copy = ! is_protected_meta( $key, 'post' ) || in_array( $key, array( '_thumbnail_id', '_wp_page_template' ), true );
 		/** Third parties may opt appropriate protected fields in; hard exclusions remain excluded. */
-		return (bool) apply_filters( 'site_staples_duplicate_meta_key', $copy, $key, $post );
+		return (bool) apply_filters( 'core_extras_duplicate_meta_key', $copy, $key, $post );
 	}
 
 	public function duplicate( $source_id ) {
 		$post = get_post( $source_id );
 		if ( ! $this->permitted( $post ) ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot read this source or create this post type.', 'site-staples' ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot read this source or create this post type.', 'core-extras' ) );
 		}
 		$taxonomies = get_object_taxonomies( $post->post_type, 'objects' );
 		foreach ( $taxonomies as $taxonomy ) {
 			if ( ! current_user_can( $taxonomy->cap->assign_terms ) ) {
-				return new \WP_Error( 'terms', __( 'You cannot assign the source taxonomies.', 'site-staples' ) );
+				return new \WP_Error( 'terms', __( 'You cannot assign the source taxonomies.', 'core-extras' ) );
 			}
 		}
 		$data = array(
@@ -69,7 +69,7 @@ final class Duplicate {
 			'post_status'  => 'draft',
 			'post_author'  => get_current_user_id(),
 			/* translators: %s: source post title. */
-			'post_title'   => sprintf( __( '%s (copy)', 'site-staples' ), $post->post_title ),
+			'post_title'   => sprintf( __( '%s (copy)', 'core-extras' ), $post->post_title ),
 			'post_content' => $post->post_content,
 			'post_excerpt' => $post->post_excerpt,
 			'post_parent'  => $post->post_parent,
@@ -99,7 +99,7 @@ final class Duplicate {
 			}
 		} catch ( \Throwable $exception ) {
 			wp_delete_post( $id, true );
-			return new \WP_Error( 'copy_failed', __( 'The draft could not be completely copied. No duplicate was retained.', 'site-staples' ) );
+			return new \WP_Error( 'copy_failed', __( 'The draft could not be completely copied. No duplicate was retained.', 'core-extras' ) );
 		}
 		return $id;
 	}
@@ -107,7 +107,7 @@ final class Duplicate {
 	public function handle() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- ID scopes the nonce verified by Guard::post() immediately below; no mutation before verification.
 		$id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
-		Guard::post( 'site_staples_duplicate_' . $id, 'read' );
+		Guard::post( 'core_extras_duplicate_' . $id, 'read' );
 		$new_id = Guard::result( $this->duplicate( $id ) );
 		wp_safe_redirect( get_edit_post_link( $new_id, 'raw' ) );
 		exit;

@@ -1,7 +1,7 @@
 <?php
-/** Shared local redirect schema validation; no feature hooks. @package SiteStaples */
+/** Shared local redirect schema validation; no feature hooks. @package CoreExtras */
 
-namespace SiteStaples;
+namespace CoreExtras;
 
 final class RedirectRules {
 	const MAX_RULES = 10000;
@@ -101,7 +101,7 @@ final class RedirectRules {
 	}
 
 	public static function error() {
-		return new \WP_Error( 'redirects', __( 'Redirects need unique local source paths, local destinations, and status 301 or 302 (maximum 10,000). Remove loops, self-redirects, query strings, dot segments, encoded delimiters, and protected WordPress paths. On subdirectory sites, include the site path.', 'site-staples' ) );
+		return new \WP_Error( 'redirects', __( 'Redirects need unique local source paths, local destinations, and status 301 or 302 (maximum 10,000). Remove loops, self-redirects, query strings, dot segments, encoded delimiters, and protected WordPress paths. On subdirectory sites, include the site path.', 'core-extras' ) );
 	}
 
 }

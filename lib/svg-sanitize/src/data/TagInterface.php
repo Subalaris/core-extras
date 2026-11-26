@@ -1,10 +1,10 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize\data;
+namespace CoreExtras\Vendor\SvgSanitize\data;
 
 /**
  * Interface TagInterface
  *
- * @package SiteStaples\Vendor\SvgSanitize\tags
+ * @package CoreExtras\Vendor\SvgSanitize\tags
  */
 interface TagInterface
 {

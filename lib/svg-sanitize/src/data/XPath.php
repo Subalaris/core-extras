@@ -1,5 +1,5 @@
 <?php
-namespace SiteStaples\Vendor\SvgSanitize\data;
+namespace CoreExtras\Vendor\SvgSanitize\data;
 
 class XPath extends \DOMXPath
 {

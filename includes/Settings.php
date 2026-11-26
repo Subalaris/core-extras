@@ -1,9 +1,10 @@
 <?php
-/** Configuration schema shared by Settings API and imports. @package SiteStaples */
+/** Configuration schema shared by Settings API and imports. @package CoreExtras */
 
-namespace SiteStaples;
+namespace CoreExtras;
 
 final class Settings {
+	// Retain the original database key so existing installations keep their settings.
 	const OPTION = 'site_staples_settings';
 	private static $writing = false;
 	private static $prepared = null;
@@ -57,11 +58,11 @@ final class Settings {
 	}
 
 	public static function widget_labels() {
-		return array( 'dashboard_primary' => __( 'WordPress events and news', 'site-staples' ), 'dashboard_quick_press' => __( 'Quick draft', 'site-staples' ), 'dashboard_activity' => __( 'Activity', 'site-staples' ), 'dashboard_right_now' => __( 'At a glance', 'site-staples' ), 'dashboard_site_health' => __( 'Site health status', 'site-staples' ) );
+		return array( 'dashboard_primary' => __( 'WordPress events and news', 'core-extras' ), 'dashboard_quick_press' => __( 'Quick draft', 'core-extras' ), 'dashboard_activity' => __( 'Activity', 'core-extras' ), 'dashboard_right_now' => __( 'At a glance', 'core-extras' ), 'dashboard_site_health' => __( 'Site health status', 'core-extras' ) );
 	}
 
 	public static function toolbar_labels() {
-		return array( 'wp-logo' => __( 'WordPress menu', 'site-staples' ), 'updates' => __( 'Updates indicator', 'site-staples' ), 'comments' => __( 'Comments', 'site-staples' ), 'new-content' => __( 'New content menu', 'site-staples' ), 'customize' => __( 'Customize', 'site-staples' ), 'search' => __( 'Search', 'site-staples' ) );
+		return array( 'wp-logo' => __( 'WordPress menu', 'core-extras' ), 'updates' => __( 'Updates indicator', 'core-extras' ), 'comments' => __( 'Comments', 'core-extras' ), 'new-content' => __( 'New content menu', 'core-extras' ), 'customize' => __( 'Customize', 'core-extras' ), 'search' => __( 'Search', 'core-extras' ) );
 	}
 
 	/** Unfiltered registry for configuration, including sizes disabled by this plugin. */
@@ -111,7 +112,7 @@ final class Settings {
 		}
 		if ( ! RedirectStore::owns_lock() ) {
 			RedirectStore::retire( $storage['redirects']['rules'] );
-			add_settings_error( self::OPTION, 'busy', __( 'The settings update timed out. Try saving again.', 'site-staples' ) );
+			add_settings_error( self::OPTION, 'busy', __( 'The settings update timed out. Try saving again.', 'core-extras' ) );
 			return get_option( self::OPTION, self::defaults() );
 		}
 		self::$prepared = $storage;
@@ -137,7 +138,7 @@ final class Settings {
 		}
 		try {
 			if ( null !== $expected && $expected !== self::get() ) {
-				return new \WP_Error( 'stale', __( 'Settings changed in another tab. Reload the rules or preview the import again before saving.', 'site-staples' ) );
+				return new \WP_Error( 'stale', __( 'Settings changed in another tab. Reload the rules or preview the import again before saving.', 'core-extras' ) );
 			}
 			$valid = self::validate( $settings );
 			if ( is_wp_error( $valid ) ) {
@@ -189,7 +190,7 @@ final class Settings {
 	public static function validate( $input, $check_registered = true ) {
 		$defaults = self::defaults();
 		if ( ! is_array( $input ) || array_diff_key( $input, $defaults ) || array_diff_key( $defaults, $input ) ) {
-			return new \WP_Error( 'schema', __( 'Settings must contain exactly the documented configuration keys.', 'site-staples' ) );
+			return new \WP_Error( 'schema', __( 'Settings must contain exactly the documented configuration keys.', 'core-extras' ) );
 		}
 		foreach ( $defaults as $key => $value ) {
 			if ( 'uninstall' === $key ) {
@@ -245,7 +246,7 @@ final class Settings {
 		}
 		$page_id = $input['maintenance']['page_id'];
 		if ( ! is_int( $page_id ) || $page_id < 0 || ( $check_registered && $page_id > 0 && ! self::maintenance_page( $page_id ) ) ) {
-			return new \WP_Error( 'maintenance_page', __( 'Choose a published page without a password, or use the default maintenance message.', 'site-staples' ) );
+			return new \WP_Error( 'maintenance_page', __( 'Choose a published page without a password, or use the default maintenance message.', 'core-extras' ) );
 		}
 		$rules = $input['redirects']['rules'];
 		if ( array() !== $rules && is_wp_error( RedirectRules::validate_rules( $rules, $check_registered ) ) ) {
@@ -257,7 +258,7 @@ final class Settings {
 	/** Friendly schema error. */
 	private static function invalid( $key ) {
 		/* translators: %s: configuration section. */
-		return new \WP_Error( 'schema', sprintf( __( 'Invalid values in %s. Check field types, selected roles and post types, allowed items, text lengths, and the revision limit (0–1000).', 'site-staples' ), $key ) );
+		return new \WP_Error( 'schema', sprintf( __( 'Invalid values in %s. Check field types, selected roles and post types, allowed items, text lengths, and the revision limit (0–1000).', 'core-extras' ), $key ) );
 	}
 
 	/** Convert browser form values, then use the same strict schema. */

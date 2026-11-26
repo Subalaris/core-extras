@@ -1,10 +1,10 @@
-=== Site Staples ===
+=== CoreExtras ===
 Contributors: subalaris
 Tags: utilities, comments, svg, duplicate, revisions
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ Eleven practical, opt-in features with native per-site settings. Everything star
 Disable comments, sanitize SVG uploads, duplicate drafts, replace local raster media,
 limit revisions, and import/export configuration. Also control image sizes, add local
 redirects, show a maintenance page, clean up admin presentation by role and add
-useful content columns. Settings → Site Staples.
+useful content columns. Settings → CoreExtras.
 
 Bundled dependency: enshrined/svg-sanitize 1.0.0 (GPL-2.0-or-later). PHP DOM and
 Fileinfo are required for SVGs. GD/Imagick format support is needed for replacement.
@@ -25,8 +25,8 @@ multisite limitations. The redirects editor requires JavaScript; existing redire
 
 == Installation ==
 1. Upload the ZIP through Plugins → Add New → Upload Plugin.
-2. Activate Site Staples.
-3. Open Settings → Site Staples, enable desired features and save.
+2. Activate CoreExtras.
+3. Open Settings → CoreExtras, enable desired features and save.
 
 == Frequently Asked Questions ==
 = Are comments or settings deleted when I disable the plugin? =
@@ -48,7 +48,11 @@ leaves unconfigured sites disabled. Network upload policies still apply. Network
 uninstall honors each site's individual configuration-removal choice.
 
 == Changelog ==
-= 1.3.1 =
+
+= 1.3.2 =
+* Renamed to CoreExtras with the core-extras slug and text domain.
+* Preserved existing settings and redirects; older settings exports remain supported.
+= 1.3.2 =
 * Automatically hide theme menus, headers and footers on custom maintenance pages.
 * Keep content filters and WordPress asset hooks for page styles and scripts.
 

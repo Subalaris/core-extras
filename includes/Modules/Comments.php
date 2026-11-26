@@ -1,7 +1,7 @@
 <?php
-/** Scoped comment suppression without persistent content changes. @package SiteStaples */
+/** Scoped comment suppression without persistent content changes. @package CoreExtras */
 
-namespace SiteStaples\Modules;
+namespace CoreExtras\Modules;
 
 final class Comments {
 	private $settings;
@@ -62,7 +62,7 @@ final class Comments {
 	}
 
 	private function error() {
-		return new \WP_Error( 'site_staples_comments_closed', __( 'Comments and pings are disabled for this content.', 'site-staples' ), array( 'status' => 403 ) );
+		return new \WP_Error( 'core_extras_comments_closed', __( 'Comments and pings are disabled for this content.', 'core-extras' ), array( 'status' => 403 ) );
 	}
 
 	public function supports() {
@@ -110,7 +110,7 @@ final class Comments {
 	public function screen() {
 		global $pagenow;
 		if ( 'all' === $this->settings['scope'] && in_array( $pagenow, array( 'edit-comments.php', 'options-discussion.php', 'comment.php' ), true ) ) {
-			wp_safe_redirect( admin_url( 'options-general.php?page=site-staples' ) );
+			wp_safe_redirect( admin_url( 'options-general.php?page=core-extras' ) );
 			exit;
 		}
 	}
@@ -118,7 +118,7 @@ final class Comments {
 	public function feed() {
 		if ( is_comment_feed() && ( 'all' === $this->settings['scope'] || ( is_singular() && $this->affected( get_queried_object_id() ) ) ) ) {
 			status_header( 403 );
-			wp_die( esc_html__( 'Comment feeds are disabled.', 'site-staples' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'Comment feeds are disabled.', 'core-extras' ), '', array( 'response' => 403 ) );
 		}
 	}
 }

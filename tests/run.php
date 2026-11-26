@@ -1,14 +1,14 @@
 <?php
 require __DIR__ . '/bootstrap.php';
 
-use SiteStaples\Settings;
-use SiteStaples\Plugin;
-use SiteStaples\Guard;
-use SiteStaples\Modules\Svg;
-use SiteStaples\Modules\Duplicate;
-use SiteStaples\Modules\Media;
-use SiteStaples\Modules\Revisions;
-use SiteStaples\Modules\Transfer;
+use CoreExtras\Settings;
+use CoreExtras\Plugin;
+use CoreExtras\Guard;
+use CoreExtras\Modules\Svg;
+use CoreExtras\Modules\Duplicate;
+use CoreExtras\Modules\Media;
+use CoreExtras\Modules\Revisions;
+use CoreExtras\Modules\Transfer;
 
 $passed = 0;
 function expect( $condition, $message ) { global $passed; if ( ! $condition ) { throw new RuntimeException( 'FAIL: ' . $message ); } ++$passed; echo "PASS $message\n"; }
@@ -16,19 +16,19 @@ function denied( $callback, $message ) { $caught = false; try { $callback(); } c
 function post_fixture( $id, $type = 'post', $parent = 0, $name = '' ) { $GLOBALS['test_posts'][ $id ] = (object) array( 'ID' => $id, 'post_parent' => $parent, 'post_type' => $type, 'post_status' => 'revision' === $type ? 'inherit' : 'publish', 'post_name' => $name, 'post_title' => 'Example', 'post_content' => '<p>Content \\ example</p>', 'post_excerpt' => 'Excerpt', 'menu_order' => 0, 'comment_status' => 'open', 'ping_status' => 'open' ); return $GLOBALS['test_posts'][ $id ]; }
 function image_fixture( $path, $w, $h, $color ) { $image = imagecreatetruecolor( $w, $h ); imagefill( $image, 0, 0, $color ); imagepng( $image, $path ); }
 try {
-	do_action( 'activate_' . plugin_basename( SITE_STAPLES_FILE ) );
+	do_action( 'activate_' . plugin_basename( CORE_EXTRAS_FILE ) );
 	expect( Settings::get() === Settings::defaults(), 'activation creates disabled defaults' );
 	Plugin::boot();
 	expect( ! class_exists( Svg::class, false ) && ! class_exists( Media::class, false ), 'disabled modules are not loaded' );
 	expect( ! has_filter( 'comments_open' ) && ! has_filter( 'upload_mimes' ), 'disabled modules register no feature hooks' );
 	$s = Settings::defaults(); $s['comments']['enabled'] = true; update_option( Settings::OPTION, $s );
-	do_action( 'activate_' . plugin_basename( SITE_STAPLES_FILE ) ); do_action( 'deactivate_' . plugin_basename( SITE_STAPLES_FILE ) );
+	do_action( 'activate_' . plugin_basename( CORE_EXTRAS_FILE ) ); do_action( 'deactivate_' . plugin_basename( CORE_EXTRAS_FILE ) );
 	expect( Settings::get() === $s, 'reactivation and deactivation preserve settings' );
 	Plugin::boot(); post_fixture( 10 ); post_fixture( 11, 'page' );
 	expect( false === apply_filters( 'comments_open', true, 10 ) && false === apply_filters( 'pings_open', true, 11 ), 'global comments and pings close existing content' );
 	expect( is_wp_error( apply_filters( 'pre_comment_approved', 1, array( 'comment_post_ID' => 10 ) ) ), 'new comments rejected with an error' );
 	remove_all_filters( 'comments_open' ); remove_all_filters( 'pings_open' ); remove_all_filters( 'pre_comment_approved' );
-	$comments = new SiteStaples\Modules\Comments( array( 'scope' => 'selected', 'post_types' => array( 'post' ) ) );
+	$comments = new CoreExtras\Modules\Comments( array( 'scope' => 'selected', 'post_types' => array( 'post' ) ) );
 	expect( false === $comments->open( true, 10 ) && true === $comments->open( true, 11 ), 'selected comment scope preserves other types' );
 	expect( array() === $comments->comments( array( 'existing' ), 10 ) && array( 'existing' ) === $comments->comments( array( 'existing' ), 11 ), 'comments hidden only within selected scope' );
 	expect( '' === $comments->block( '<form>Comments</form>', array( 'blockName' => 'core/comments' ), (object) array( 'context' => array( 'postId' => 10 ) ) ) && '<form>Comments</form>' === $comments->block( '<form>Comments</form>', array( 'blockName' => 'core/comments' ), (object) array( 'context' => array( 'postId' => 11 ) ) ), 'block-theme comment forms and lists respect selected scope' );
@@ -78,7 +78,7 @@ try {
 	foreach ( array( 'read_post', 'create_posts', 'assign_terms' ) as $cap ) { $GLOBALS['test_caps'][$cap] = false; expect( is_wp_error( $duplicate->duplicate( 10 ) ), 'duplicate denies missing ' . $cap ); $GLOBALS['test_caps'][$cap] = true; }
 	expect( is_wp_error( $duplicate->duplicate( 20 ) ), 'duplicate excludes unselected types' );
 
-	$doc = array( 'plugin' => 'site-staples', 'schema_version' => Transfer::SCHEMA_VERSION, 'settings' => Settings::defaults() );
+	$doc = array( 'plugin' => 'core-extras', 'schema_version' => Transfer::SCHEMA_VERSION, 'settings' => Settings::defaults() );
 	expect( Settings::defaults() === Transfer::parse( json_encode( $doc ) ), 'versioned export round trips through strict import validation' );
 	$invalids = array( '{', '[]', str_repeat( 'x', Transfer::MAX_BYTES + 1 ) );
 	foreach ( array( 'version', 'extra', 'boolean', 'limit', 'role', 'type', 'missing', 'action' ) as $case ) {
@@ -142,7 +142,7 @@ try {
 	expect( is_wp_error( $media->replace( 30, $file ) ), 'replacement rejects non-HTTP upload provenance' );
 	$GLOBALS['test_meta_fail_once'] = true; $result = $media->transaction( 30, $source, $target );
 	expect( is_wp_error( $result ) && ! $GLOBALS['test_meta_fail_once'] && $hash === hash_file( 'sha256', $target ) && $original_meta === get_post_meta( 30, '_wp_attachment_metadata', true ), 'metadata commit failure rolls back original file and attachment data' );
-	expect( ! glob( $GLOBALS['test_uploads'] . '/original-*' ) && ! glob( $GLOBALS['test_uploads'] . '/.site-staples-*' ), 'failure removes staged and newly committed thumbnails' );
+	expect( ! glob( $GLOBALS['test_uploads'] . '/original-*' ) && ! glob( $GLOBALS['test_uploads'] . '/.core-extras-*' ), 'failure removes staged and newly committed thumbnails' );
 	// Fail thumbnail generation before any live files are touched.
 	$broken_sizes = static function ( $sizes ) { $sizes['missing'] = array( 'width' => 50, 'height' => 50, 'crop' => true ); return $sizes; };
 	class FailingEditor extends WP_Image_Editor_GD { public function multi_resize( $sizes ) { return array(); } }
@@ -158,7 +158,7 @@ try {
 	expect( $url === wp_get_attachment_url(30) && $target === get_attached_file(30), 'replacement preserves ID, attached file path and public URL' );
 	add_option( 'site_staples_media_lock_30', time() ); expect( is_wp_error( $media->transaction( 30, $source, $target ) ), 'concurrent replacement denied by lock' ); delete_option( 'site_staples_media_lock_30' );
 
-	$image_controls = new SiteStaples\Modules\ImageSizes( array( 'disabled_sizes' => array( 'thumbnail' ) ) ); $image_controls->register();
+	$image_controls = new CoreExtras\Modules\ImageSizes( array( 'disabled_sizes' => array( 'thumbnail' ) ) ); $image_controls->register();
 	$result = $media->transaction( 30, $source, $target );
 	expect( true === $result && empty( get_post_meta( 30, '_wp_attachment_metadata', true )['sizes']['thumbnail'] ), 'media replacement honors enabled image size exclusions' );
 	remove_filter( 'intermediate_image_sizes', array( $image_controls, 'names' ), 99 ); remove_filter( 'intermediate_image_sizes_advanced', array( $image_controls, 'filter' ), 99 );
@@ -170,10 +170,10 @@ try {
 	}
 	$GLOBALS['test_caps'] = $old_caps;
 	$preserved = $GLOBALS['test_posts']; $config = Settings::get();
-	define( 'WP_UNINSTALL_PLUGIN', plugin_basename( SITE_STAPLES_FILE ) );
+	define( 'WP_UNINSTALL_PLUGIN', plugin_basename( CORE_EXTRAS_FILE ) );
 	require dirname(__DIR__) . '/uninstall.php';
 	expect( $config === Settings::get(), 'uninstall preserves configuration by default' );
-	$config['uninstall'] = true; update_option( Settings::OPTION, $config ); SiteStaples\uninstall_site();
+	$config['uninstall'] = true; update_option( Settings::OPTION, $config ); CoreExtras\uninstall_site();
 	expect( false === get_option( Settings::OPTION ) && $preserved === $GLOBALS['test_posts'], 'opt-in uninstall removes configuration without changing content' );
 
 	echo "\n$passed assertions passed. Core hooks/MIME/GD + isolated API doubles + real SQL queries.\n";

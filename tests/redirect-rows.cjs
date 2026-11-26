@@ -42,30 +42,30 @@ const html = execFileSync('php', [path.join(__dirname, 'render-admin.php'), '--e
 		await page.addStyleTag({ content: fs.readFileSync(path.join(root, 'assets/admin.css'), 'utf8') });
 		await page.addScriptTag({ content: fs.readFileSync(path.join(root, 'assets/redirects.js'), 'utf8') });
 		await page.addScriptTag({ content: fs.readFileSync(path.join(root, 'assets/admin.js'), 'utf8') });
-		await page.locator('#staples-tab-site').click();
-		const maintenancePage = page.locator('#staples-maintenance-page');
+		await page.locator('#core-extras-tab-site').click();
+		const maintenancePage = page.locator('#core-extras-maintenance-page');
 		assert.equal(await maintenancePage.inputValue(), '321');
 		assert.equal(await maintenancePage.locator('option[value="322"], option[value="323"], option[value="324"]').count(), 0);
-		const clearMaintenance = page.locator('#staples-maintenance-page-clear');
+		const clearMaintenance = page.locator('#core-extras-maintenance-page-clear');
 		assert.equal(await clearMaintenance.isVisible(), true);
 		await clearMaintenance.click();
 		assert.equal(await maintenancePage.inputValue(), '0');
 		assert.equal(await clearMaintenance.isVisible(), false);
-		assert.equal(await page.locator('#site-staples-save').isEnabled(), true);
-		assert.equal(await page.evaluate(() => new FormData(document.getElementById('site-staples-settings')).get('site_staples_settings[maintenance][page_id]')), '0');
-		await page.locator('#site-staples-discard').click();
+		assert.equal(await page.locator('#core-extras-save').isEnabled(), true);
+		assert.equal(await page.evaluate(() => new FormData(document.getElementById('core-extras-settings')).get('site_staples_settings[maintenance][page_id]')), '0');
+		await page.locator('#core-extras-discard').click();
 		await clearMaintenance.waitFor({ state: 'visible' });
 		assert.equal(await maintenancePage.inputValue(), '321');
 		assert.equal(await clearMaintenance.isVisible(), true);
 		await maintenancePage.selectOption('321');
-		await page.locator('#staples-maintenance').uncheck();
+		await page.locator('#core-extras-maintenance').uncheck();
 		assert.equal(await maintenancePage.isDisabled(), true);
-		assert.equal(await page.evaluate(() => new FormData(document.getElementById('site-staples-settings')).get('site_staples_settings[maintenance][page_id]')), '321');
-		await page.locator('#staples-maintenance').check();
+		assert.equal(await page.evaluate(() => new FormData(document.getElementById('core-extras-settings')).get('site_staples_settings[maintenance][page_id]')), '321');
+		await page.locator('#core-extras-maintenance').check();
 		assert.equal(await maintenancePage.isDisabled(), false);
 
 		const info = page.locator('[data-redirect-info]');
-		const bubble = page.locator('#staples-redirect-help');
+		const bubble = page.locator('#core-extras-redirect-help');
 		assert.equal(await bubble.isVisible(), false);
 		await info.hover();
 		assert.equal(await bubble.isVisible(), true);
@@ -80,22 +80,22 @@ const html = execFileSync('php', [path.join(__dirname, 'render-admin.php'), '--e
 		assert.equal(await bubble.isVisible(), false);
 		await info.click();
 		assert.equal(await bubble.isVisible(), true);
-		await page.locator('#staples-heading-site').click();
+		await page.locator('#core-extras-heading-site').click();
 		assert.equal(await bubble.isVisible(), false);
-		const editor = page.locator('#staples-redirect-editor');
+		const editor = page.locator('#core-extras-redirect-editor');
 		const rows = editor.locator('[data-redirect-rows] [data-redirect-row]');
 		const message = editor.locator('[data-redirect-message]');
 		const fresh = editor.locator('[data-redirect-new]');
-		const settled = () => page.waitForFunction(() => document.getElementById('staples-redirect-editor').getAttribute('aria-busy') === 'false');
+		const settled = () => page.waitForFunction(() => document.getElementById('core-extras-redirect-editor').getAttribute('aria-busy') === 'false');
 		await settled();
-		for (const selector of ['#staples-redirect-search', '[data-redirect-search]', '[data-redirect-reload]', '[data-redirect-open]']) {
+		for (const selector of ['#core-extras-redirect-search', '[data-redirect-search]', '[data-redirect-reload]', '[data-redirect-open]']) {
 			assert.equal(await editor.locator(selector).evaluate(el => el.getBoundingClientRect().height), 44, 'redirect toolbar control height: ' + selector);
 		}
 		assert.equal(await editor.locator('[data-redirect-search]').getAttribute('aria-label'), 'Search');
 		assert.equal(await editor.locator('[data-redirect-search] svg').count(), 1);
 		assert.equal(await rows.count(), 25);
 		assert.equal(await editor.locator('[data-redirect-clear]').isVisible(), false);
-		assert.equal(await editor.locator('.site-staples-redirect-pagination:visible').count(), 2);
+		assert.equal(await editor.locator('.core-extras-redirect-pagination:visible').count(), 2);
 		const editRow = async row => {
 			if (!(await row.locator('[data-redirect-edit-fields]').isVisible())) {
 				await row.hover(); await row.locator('[data-redirect-edit]').click();
@@ -106,12 +106,12 @@ const html = execFileSync('php', [path.join(__dirname, 'render-admin.php'), '--e
 		assert.equal(await rows.first().locator('[data-redirect-value="to"]').textContent(), '/new-0');
 		assert.match(await rows.first().locator('[data-redirect-value="status"]').textContent(), /302/);
 		await page.mouse.move(0, 0);
-		assert.equal(await rows.first().locator('.site-staples-redirect-row-links').evaluate(el => getComputedStyle(el).opacity), '0');
+		assert.equal(await rows.first().locator('.core-extras-redirect-row-links').evaluate(el => getComputedStyle(el).opacity), '0');
 		await rows.first().hover();
-		assert.equal(await rows.first().locator('.site-staples-redirect-row-links').evaluate(el => getComputedStyle(el).opacity), '1');
+		assert.equal(await rows.first().locator('.core-extras-redirect-row-links').evaluate(el => getComputedStyle(el).opacity), '1');
 		await page.mouse.move(0, 0);
 		await rows.first().locator('[data-redirect-edit]').focus();
-		assert.equal(await rows.first().locator('.site-staples-redirect-row-links').evaluate(el => getComputedStyle(el).opacity), '1');
+		assert.equal(await rows.first().locator('.core-extras-redirect-row-links').evaluate(el => getComputedStyle(el).opacity), '1');
 		await page.keyboard.press('Enter');
 		assert.equal(await rows.first().locator('[data-redirect-edit-fields]').isVisible(), true);
 		await rows.first().locator('[data-redirect-cancel]').click();
@@ -120,17 +120,17 @@ const html = execFileSync('php', [path.join(__dirname, 'render-admin.php'), '--e
 		// Disabling the feature locks every editor control without dropping data or drafts.
 		await editRow(rows.first());
 		await rows.first().locator('[data-redirect-field="to"]').fill('/draft-preserved-while-off');
-		await page.locator('#staples-redirects').uncheck();
-		for (const selector of ['[data-redirect-open]', '#staples-redirect-search', '[data-redirect-search]', '[data-redirect-reload]', '[data-redirect-next]', '[data-redirect-page]']) {
+		await page.locator('#core-extras-redirects').uncheck();
+		for (const selector of ['[data-redirect-open]', '#core-extras-redirect-search', '[data-redirect-search]', '[data-redirect-reload]', '[data-redirect-next]', '[data-redirect-page]']) {
 			assert.equal(await editor.locator(selector).first().isDisabled(), true, 'disabled redirect control: ' + selector);
 		}
 		assert.equal(await rows.first().locator('[data-redirect-field="to"]').isDisabled(), true);
 		assert.equal(await rows.first().locator('[data-redirect-save]').isDisabled(), true);
 		assert.equal(await rows.first().locator('[data-redirect-remove]').isDisabled(), true);
 		assert.equal(await rows.first().locator('[data-redirect-field="to"]').inputValue(), '/draft-preserved-while-off');
-		assert.equal(await page.evaluate(() => new FormData(document.getElementById('site-staples-settings')).get('site_staples_settings[redirects][managed]')), '1');
+		assert.equal(await page.evaluate(() => new FormData(document.getElementById('core-extras-settings')).get('site_staples_settings[redirects][managed]')), '1');
 		assert.equal(rules[0].to, '/new-0');
-		await page.locator('#staples-redirects').check();
+		await page.locator('#core-extras-redirects').check();
 		assert.equal(await rows.first().locator('[data-redirect-field="to"]').isDisabled(), false);
 		assert.equal(await rows.first().locator('[data-redirect-field="to"]').inputValue(), '/draft-preserved-while-off');
 		await rows.first().locator('[data-redirect-cancel]').click();
@@ -158,31 +158,31 @@ const html = execFileSync('php', [path.join(__dirname, 'render-admin.php'), '--e
 		assert.equal(await editor.locator('[data-redirect-prev]').first().isDisabled(), true);
 		await editor.locator('[data-redirect-next]').first().click(); await settled();
 		assert.equal(await rows.first().locator('input').first().inputValue(), '/old-25');
-		await editor.locator('#staples-redirect-search').fill('new-74');
-		await editor.locator('#staples-redirect-search').press('Enter'); await settled();
+		await editor.locator('#core-extras-redirect-search').fill('new-74');
+		await editor.locator('#core-extras-redirect-search').press('Enter'); await settled();
 		assert.equal(await rows.count(), 1);
-		assert.equal(await editor.locator('.site-staples-redirect-pagination:visible').count(), 0);
+		assert.equal(await editor.locator('.core-extras-redirect-pagination:visible').count(), 0);
 		assert.match(await message.textContent(), /1 matching redirects of 75/);
 		assert.equal(await editor.locator('[data-redirect-clear]').isVisible(), true);
-		await editor.locator('#staples-redirect-search').fill('no-result');
+		await editor.locator('#core-extras-redirect-search').fill('no-result');
 		await editor.locator('[data-redirect-search]').click(); await settled();
 		assert.equal(await rows.count(), 0);
-		assert.equal(await editor.locator('.site-staples-redirect-pagination:visible').count(), 0);
+		assert.equal(await editor.locator('.core-extras-redirect-pagination:visible').count(), 0);
 		assert.match(await message.textContent(), /No matching/);
 		failNext = true;
 		await editor.locator('[data-redirect-clear]').click(); await settled();
 		assert.equal(await editor.locator('[data-redirect-clear]').isVisible(), true);
-		assert.equal(await editor.locator('#staples-redirect-search').inputValue(), 'no-result');
+		assert.equal(await editor.locator('#core-extras-redirect-search').inputValue(), 'no-result');
 		await editor.locator('[data-redirect-clear]').click(); await settled();
-		assert.equal(await editor.locator('#staples-redirect-search').inputValue(), '');
+		assert.equal(await editor.locator('#core-extras-redirect-search').inputValue(), '');
 		assert.equal(await editor.locator('[data-redirect-clear]').isVisible(), false);
 		assert.equal(await rows.count(), 25);
 		assert.equal(await rows.first().locator('[data-redirect-value="from"]').textContent(), '/old-0');
 		assert.equal(await editor.locator('[data-redirect-pages]').first().locator('[aria-current="page"]').textContent(), '1');
 		assert.equal(await message.textContent(), '');
-		assert.equal(await editor.locator('#staples-redirect-search').evaluate(el => el === document.activeElement), true);
+		assert.equal(await editor.locator('#core-extras-redirect-search').evaluate(el => el === document.activeElement), true);
 		// Multiple drafts survive saving a different row, including unsubmitted main settings.
-		await page.locator('#staples-maintenance-title').fill('Unsubmitted settings');
+		await page.locator('#core-extras-maintenance-title').fill('Unsubmitted settings');
 		await editRow(rows.nth(0)); await editRow(rows.nth(1));
 		await rows.nth(0).locator('[data-redirect-field="to"]').fill('/changed-first');
 		await rows.nth(1).locator('[data-redirect-field="to"]').fill('/unsaved-second');
@@ -191,7 +191,7 @@ const html = execFileSync('php', [path.join(__dirname, 'render-admin.php'), '--e
 		assert.equal(await rows.first().locator('[data-redirect-edit-fields]').isVisible(), false);
 		assert.equal(await rows.first().locator('[data-redirect-value="to"]').textContent(), '/changed-first');
 		assert.equal(await rows.nth(1).locator('[data-redirect-field="to"]').inputValue(), '/unsaved-second');
-		assert.equal(await page.locator('#staples-maintenance-title').inputValue(), 'Unsubmitted settings');
+		assert.equal(await page.locator('#core-extras-maintenance-title').inputValue(), 'Unsubmitted settings');
 		await rows.nth(1).locator('[data-redirect-cancel]').click();
 		assert.equal(await rows.nth(1).locator('[data-redirect-field="to"]').inputValue(), '/new-1');
 		assert.equal(await rows.nth(1).locator('[data-redirect-save]').isDisabled(), true);
@@ -244,12 +244,12 @@ const html = execFileSync('php', [path.join(__dirname, 'render-admin.php'), '--e
 		assert.equal(rules.length, 75);
 		assert.match(await message.textContent(), /Redirect deleted/);
 		// The editor's fields are excluded from the main Settings API payload.
-		assert.equal(await page.evaluate(() => Array.from(new FormData(document.getElementById('site-staples-settings')).keys()).some(key => /rules_rows|\[from\]|\[to\]/.test(key))), false);
+		assert.equal(await page.evaluate(() => Array.from(new FormData(document.getElementById('core-extras-settings')).keys()).some(key => /rules_rows|\[from\]|\[to\]/.test(key))), false);
 		await page.setViewportSize({ width: 390, height: 844 });
 		assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'mobile page has no horizontal overflow');
-		await page.screenshot({ path: '/tmp/site-staples-scalable-mobile.png', fullPage: true });
+		await page.screenshot({ path: '/tmp/core-extras-scalable-mobile.png', fullPage: true });
 		await page.setViewportSize({ width: 1440, height: 1000 });
-		await page.screenshot({ path: '/tmp/site-staples-scalable-desktop.png', fullPage: true });
+		await page.screenshot({ path: '/tmp/core-extras-scalable-desktop.png', fullPage: true });
 		assert.deepEqual(errors, []);
 		console.log('PASS browser: read-only rows, hover/keyboard Edit actions, save/discard transitions, paging, search, empty states, independent saves, multiple drafts, conflict/failure recovery, native validation, focus, deletion, bounded settings payload and mobile overflow. AJAX transport simulated.');
 	} finally { await browser.close(); }

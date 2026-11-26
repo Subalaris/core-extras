@@ -1,13 +1,13 @@
 <?php
-/** Bounded rule editing, search and pagination; feature enablement stays in settings. @package SiteStaples */
+/** Bounded rule editing, search and pagination; feature enablement stays in settings. @package CoreExtras */
 
-namespace SiteStaples;
+namespace CoreExtras;
 
 final class RedirectManager {
 	const PAGE_SIZE = 25;
 
 	public function register() {
-		add_action( 'wp_ajax_site_staples_redirects', array( $this, 'handle' ) );
+		add_action( 'wp_ajax_core_extras_redirects', array( $this, 'handle' ) );
 	}
 
 	public function listing( $search = '', $page = 1 ) {
@@ -26,7 +26,7 @@ final class RedirectManager {
 	/** Never accept an array of form rows: each request changes exactly one rule. */
 	public function mutate( $operation, $version, $original, $rule = null ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new \WP_Error( 'permission', __( 'You cannot manage redirects.', 'site-staples' ) );
+			return new \WP_Error( 'permission', __( 'You cannot manage redirects.', 'core-extras' ) );
 		}
 		$locked = RedirectStore::lock();
 		if ( is_wp_error( $locked ) ) {
@@ -34,7 +34,7 @@ final class RedirectManager {
 		}
 		try {
 			if ( ! is_string( $version ) || $version !== RedirectStore::current_token() ) {
-				return new \WP_Error( 'stale', __( 'Redirects changed in another tab. Reload the rules before saving; your entered paths have been kept.', 'site-staples' ) );
+				return new \WP_Error( 'stale', __( 'Redirects changed in another tab. Reload the rules before saving; your entered paths have been kept.', 'core-extras' ) );
 			}
 			$settings = Settings::get();
 			$before = $settings;
@@ -47,7 +47,7 @@ final class RedirectManager {
 				}
 			}
 			if ( ! in_array( $operation, array( 'add', 'update', 'delete' ), true ) || ( 'add' !== $operation && null === $index ) ) {
-				return new \WP_Error( 'missing', __( 'This redirect no longer exists. Reload the rules.', 'site-staples' ) );
+				return new \WP_Error( 'missing', __( 'This redirect no longer exists. Reload the rules.', 'core-extras' ) );
 			}
 			if ( 'delete' === $operation ) {
 				array_splice( $rules, $index, 1 );
@@ -64,9 +64,9 @@ final class RedirectManager {
 	}
 
 	public function handle() {
-		check_ajax_referer( 'site_staples_redirects', 'nonce' );
+		check_ajax_referer( 'core_extras_redirects', 'nonce' );
 		if ( ! current_user_can( 'manage_options' ) || 'POST' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
-			wp_send_json_error( array( 'message' => __( 'You cannot manage redirects.', 'site-staples' ) ), 403 );
+			wp_send_json_error( array( 'message' => __( 'You cannot manage redirects.', 'core-extras' ) ), 403 );
 		}
 		$input = array();
 		foreach ( array( 'operation', 'version', 'original', 'from', 'to', 'status', 'search', 'page' ) as $field ) {
@@ -74,7 +74,7 @@ final class RedirectManager {
 		}
 		$operation = $input['operation'];
 		if ( ! in_array( $operation, array( 'list', 'add', 'update', 'delete' ), true ) || strlen( $input['search'] ) > 1024 ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid redirect request.', 'site-staples' ) ), 400 );
+			wp_send_json_error( array( 'message' => __( 'Invalid redirect request.', 'core-extras' ) ), 400 );
 		}
 		if ( in_array( $operation, array( 'add', 'update' ), true ) && ! in_array( $input['status'], array( '301', '302' ), true ) ) {
 			wp_send_json_error( array( 'message' => RedirectRules::error()->get_error_message() ), 400 );
